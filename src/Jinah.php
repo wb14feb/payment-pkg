@@ -6,6 +6,7 @@ use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\DTOs\PaymentRequest;
 use AnyTech\Jinah\DTOs\PaymentResponse;
 use AnyTech\Jinah\DTOs\TransactionInquiry;
+use AnyTech\Jinah\DTOs\WebhookPayload;
 use AnyTech\Jinah\Exceptions\PaymentException;
 use AnyTech\Jinah\Factories\PaymentServiceFactory;
 
@@ -36,7 +37,7 @@ class Jinah
      */
     public function check(
         string $orderId,
-    ): PaymentResponse {
+    ): WebhookPayload {
         return $this->paymentService->check($orderId);
     }
 

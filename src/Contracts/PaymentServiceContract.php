@@ -5,6 +5,7 @@ namespace AnyTech\Jinah\Contracts;
 use AnyTech\Jinah\DTOs\PaymentRequest;
 use AnyTech\Jinah\DTOs\PaymentResponse;
 use AnyTech\Jinah\DTOs\TransactionInquiry;
+use AnyTech\Jinah\DTOs\WebhookPayload;
 
 interface PaymentServiceContract
 {
@@ -13,7 +14,7 @@ interface PaymentServiceContract
      */
     public function initiate(PaymentRequest $request): PaymentResponse;
 
-    public function check(string $orderId): PaymentResponse;
+    public function check(string $orderId): WebhookPayload;
 
     public function getServiceName(): string;
 

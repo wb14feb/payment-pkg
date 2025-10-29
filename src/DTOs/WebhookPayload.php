@@ -86,7 +86,21 @@ class WebhookPayload
     public static function fromFinPayRequest(Request $request): self
     {
         $data = $request->all();
-        
+        return static::fromFinpay([
+            ...$data,
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'headers' => $request->headers->all(),
+                'merchant_id' => $data['merchant']['id'] ?? null,
+                'payment_type' => $data['sourceOfFunds']['type'] ?? null,
+                'channel' => $data['result']['payment']['channel'] ?? null,
+                'signature' => $data['signature'] ?? null,
+            ],
+        ]);
+    }
+
+    public static function fromFinpay(array $data) {
         return new self(
             service: 'finpay',
             eventType: $data['event_type'] ?? 'payment.notification',
@@ -97,15 +111,7 @@ class WebhookPayload
             currency: $data['order']['currency'] ?? $data['currency'] ?? 'IDR',
             timestamp: isset($data['result']['payment']['datetime']) ? Carbon::parse($data['result']['payment']['datetime']) : (isset($data['timestamp']) ? Carbon::parse($data['timestamp']) : Carbon::now()),
             rawPayload: $data,
-            metadata: [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'headers' => $request->headers->all(),
-                'merchant_id' => $data['merchant']['id'] ?? null,
-                'payment_type' => $data['sourceOfFunds']['type'] ?? null,
-                'channel' => $data['result']['payment']['channel'] ?? null,
-                'signature' => $data['signature'] ?? null,
-            ],
+            metadata: $data['metadata'] ?? [],
             paymentMethod: $data['sourceOfFunds']['type'] ?? null,
         );
     }

@@ -3,9 +3,11 @@
 namespace AnyTech\Jinah\Services;
 
 use AnyTech\Jinah\Contracts\PaymentServiceContract;
+use AnyTech\Jinah\DTOs\PaymentItemRequest;
 use AnyTech\Jinah\DTOs\PaymentRequest;
 use AnyTech\Jinah\DTOs\PaymentResponse;
 use AnyTech\Jinah\DTOs\TransactionInquiry;
+use AnyTech\Jinah\DTOs\WebhookPayload;
 use AnyTech\Jinah\Exceptions\ApiException;
 use AnyTech\Jinah\Exceptions\PaymentException;
 use Exception;
@@ -56,22 +58,10 @@ class FinPayService implements PaymentServiceContract
         );
     }
 
-    public function check(string $orderId): PaymentResponse
+    public function check(string $orderId): WebhookPayload
     {
-        $payload = ['orderId' => $orderId];
-        $response = $this->sendSignedRequest('/pg/payment/card/status', $payload, 'GET');
-        return new PaymentResponse(
-            success: $response['status'] === 'SUCCESS',
-            transactionId: $response['transactionId'] ?? null,
-            merchantOrderId: $response['order']['id'] ?? null,
-            status: $response['status'] ?? null,
-            amount: isset($response['order']['amount']) ? (float) $response['order']['amount'] : null,
-            currency: $response['order']['currency'] ?? null,
-            paymentUrl: $response['paymentUrl'] ?? null,
-            message: $response['message'] ?? null,
-            errorCode: $response['errorCode'] ?? null,
-            rawResponse: $response
-        );
+        $response = $this->sendSignedRequest('/pg/payment/card/check/' . $orderId, [], 'GET');
+        return WebhookPayload::fromFinpay($response['data']);
     }
 
     private function buildPayload(PaymentRequest $request): array
@@ -88,7 +78,7 @@ class FinPayService implements PaymentServiceContract
         if (!str_starts_with($phone, '+')) {
             $phone = "+{$phone}";
         }
-        return [
+        $payload = [
             'order' => [
                 'id' => $request->orderId,
                 'amount' => $amount,
@@ -96,6 +86,9 @@ class FinPayService implements PaymentServiceContract
             ],
             'url' => [
                 'callbackUrl' => route('jinah.webhook', ['service' => 'finpay']),
+                'successUrl' => $request->returnUrl,
+                'failureUrl' => $request->cancelUrl,
+                'backUrl' => $request->returnUrl,
             ],
             'customer' => [
                 'firstName' => $firstName,
@@ -104,6 +97,36 @@ class FinPayService implements PaymentServiceContract
                 'mobilePhone' => $phone,
             ],
         ];
+        if (!empty($request->items)) {
+            $payload['order'] = [
+                ...$payload['order'],
+                'itemAmount' => $amount,
+                'item' => array_map(function (PaymentItemRequest $item) {
+                    return [
+                        'name' => $item->name,
+                        'quantity' => $item->quantity,
+                        'unitPrice' => $item->price,
+                        'sku' => $item->sku,
+                        'brand' => $item->brand,
+                        'category' => $item->category,
+                        'description' => $item->description,
+                    ];
+                }, $request->items)
+            ];
+        }
+        if ($request->getAdminFeeValue() > 0) {
+            $payload['order'] = [
+                ...$payload['order'],
+                'amount' => $amount + intval($request->getAdminFeeValue()),
+                'itemAmount' => $amount + intval($request->getAdminFeeValue()),
+            ];
+            $payload['order']['item'][] = [
+                'name' => $request->getAdminFeeName(),
+                'quantity' => 1,
+                'unitPrice' => intval($request->getAdminFeeValue()),
+            ];
+        }
+        return $payload;
     }
 
     private function sendSignedRequest(string $endpoint, array $body, string $method = 'POST'): array
@@ -114,16 +137,21 @@ class FinPayService implements PaymentServiceContract
 
         $credentials = "{$clientId}:{$clientSecret}";
         $authorization = 'Basic ' . base64_encode($credentials);
-
         try {
-            return Http::retry(3, function (int $attempt, Exception $exception) {
+            $httpClient = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $authorization,
+            ])->retry(3, function (int $attempt, Exception $exception) {
                 return $attempt * 1000;
-            })->withHeaders([
-                        'Content-Type' => 'application/json',
-                        'Authorization' => $authorization,
-                    ])->post($baseUrl . $endpoint, $body)
-                ->throw()
-                ->json();
+            });
+            if ($method === 'GET') {
+                if (!empty($body)) {
+                    $endpoint .= '?' . http_build_query($body);
+                }
+                return $httpClient->get($baseUrl . $endpoint)->throw()->json();
+            } else {
+                return $httpClient->post($baseUrl . $endpoint, $body)->throw()->json();
+            }
         } catch (\Illuminate\Http\Client\RequestException $e) {
             $responseBody = $e->response ? $e->response->body() : null;
             return $responseBody ? json_decode($responseBody, true) : [];
