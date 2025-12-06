@@ -167,7 +167,7 @@ class FinPayService implements PaymentServiceContract
         } elseif (str_starts_with($type, 'qr')) {
             $contentType = PaymentResponse::CONTENT_TYPE_QR;
             $content = $response['stringQr'] ?? null;
-            $content = (new QRCode())->render(json_encode($content));
+            $content = (new QRCode())->render($content);
         } 
         // else if (str_starts_with($type, 'cc')) {
         //     $contentType = PaymentResponse::CONTENT_TYPE_CC;
