@@ -5,6 +5,7 @@ namespace AnyTech\Jinah\Factories;
 use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\Exceptions\JinahException;
 use AnyTech\Jinah\Services\FinPayService;
+use AnyTech\Jinah\Services\JinahService;
 use Illuminate\Http\Request;
 use Log;
 
@@ -22,11 +23,11 @@ class PaymentServiceFactory
      */
     public function create(?string $serviceName = null): PaymentServiceContract
     {
-        $serviceName ??= $this->config['default_service'] ?? 'finpay';
+        $serviceName ??= $this->config['default_service'] ?? 'jinah';
 
         return match ($serviceName) {
             'finpay' => $this->createFinPayService(),
-            default => throw new JinahException("Unsupported payment service: {$serviceName}"),
+            default => $this->createJinahService(),
         };
     }
     
@@ -40,6 +41,17 @@ class PaymentServiceFactory
         }
 
         $service = new FinPayService($this->config);
+
+        return $service;
+    }
+
+    private function createJinahService(): JinahService
+    {
+        if (!isset($this->config['services']['jinah'])) {
+            throw new JinahException("Jinah service is not configured");
+        }
+
+        $service = new JinahService($this->config);
 
         return $service;
     }
@@ -92,6 +104,6 @@ class PaymentServiceFactory
      */
     public function getDefaultService(): string
     {
-        return $this->config['default_service'] ?? 'finpay';
+        return $this->config['default_service'] ?? 'jinah';
     }
 }

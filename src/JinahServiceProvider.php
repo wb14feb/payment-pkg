@@ -21,6 +21,7 @@ class JinahServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasRoute('webhook')
+            ->hasRoute('payment')
             ->hasMigration('create_jinah_table')
             ->hasCommand(JinahCommand::class);
     }

@@ -2,10 +2,47 @@
 
 // config for AnyTech/Jinah
 return [
-    "default_service" => env('JINAH_DEFAULT_SERVICE', 'finpay'),
+    "default_service" => env('JINAH_DEFAULT_SERVICE', 'jinah'),
     "environment" => env('JINAH_ENVIRONMENT', 'development'),
     
     "services" => [
+        "jinah" => [
+            "driver" => "jinah",
+            "name" => "Jinah Default",
+            "description" => "Default Jinah Payment Service",
+            "channels" => [
+                "qris" => [
+                    "category" => "qr",
+                    "enabled" => true,
+                    "service" => "finpay",
+                ],
+                "vabca" => [
+                    "category" => "va",
+                    "enabled" => true,
+                    "service" => "finpay",
+                ],
+                "vabri" => [
+                    "category" => "va",
+                    "enabled" => true,
+                    "service" => "finpay",
+                ],
+                "vamandiri" => [
+                    "category" => "va",
+                    "enabled" => true,
+                    "service" => "finpay",
+                ],
+                "vabni" => [
+                    "category" => "va",
+                    "enabled" => true,
+                    "service" => "finpay",
+                ],
+                "cc" => [
+                    "category" => "cc",
+                    "enabled" => true,
+                    "service" => "finpay",
+                ]
+            ]
+        ],
         "finpay" => [
             "driver" => "finpay",
             "name" => "FinPay",

@@ -18,4 +18,6 @@ interface PaymentServiceContract
 
     public function getServiceName(): string;
 
+    public function initiateChannel(PaymentRequest $request, $type): PaymentResponse;
+
 }

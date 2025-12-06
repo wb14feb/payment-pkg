@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace AnyTech\Jinah\DTOs;
 
+use Closure;
+
 class PaymentRequest
 {   
+
     public function __construct(
         public readonly string $orderId,
         public readonly float $amount,
@@ -20,6 +23,8 @@ class PaymentRequest
         public readonly ?string $callbackUrl = null,
         public readonly ?string $returnUrl = null,
         public readonly ?string $cancelUrl = null,
+        /** @var callable() */
+        public readonly ?Closure $adminFeeCalculator = null,
         /** @var PaymentItemRequest[] */
         public readonly array $items = [],
     ) {}
@@ -46,10 +51,16 @@ class PaymentRequest
     }
 
     public function getAdminFeeValue() {
+        if ($this->adminFeeCalculator) {
+            return ($this->adminFeeCalculator)();
+        }
         return ($this->amount * ($this->adminFeePercentage / 100)) + ($this->adminFee ?? 0);
     }
 
     public function getAdminFeeName() {
+        if ($this->adminFeeCalculator) {
+            return "Admin Fee";
+        }
         $adminFee = [];
         if ($this->adminFeePercentage) {
             $adminFee[] = $this->adminFeePercentage . '%';

@@ -6,13 +6,24 @@ use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\DTOs\PaymentItemRequest;
 use AnyTech\Jinah\DTOs\PaymentRequest;
 use AnyTech\Jinah\DTOs\PaymentResponse;
+use AnyTech\Jinah\DTOs\TransactionInquiry;
 use AnyTech\Jinah\DTOs\WebhookPayload;
-use chillerlan\QRCode\QRCode;
-use chillerlan\QRCode\QROptions;
+use AnyTech\Jinah\Exceptions\ApiException;
+use AnyTech\Jinah\Exceptions\PaymentException;
+use AnyTech\Jinah\Factories\PaymentServiceFactory;
+use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\ResponseInterface;
 
-class FinPayService implements PaymentServiceContract
+class JinahService implements PaymentServiceContract
 {
     private array $config;
     private string $baseUrl;
@@ -33,20 +44,20 @@ class FinPayService implements PaymentServiceContract
 
     public function getServiceName(): string
     {
-        return 'finpay';
+        return 'jinah';
     }
 
     public function initiate(PaymentRequest $request): PaymentResponse
     {
         $payload = $this->buildPayload($request);
-        $response = $this->sendSignedRequest('/pg/payment/card/initiate', $payload);
+        Cache::put('jinah_payload_' . $request->orderId, $payload, now()->addMinutes(20));
         return new PaymentResponse(
-            success: str_starts_with($response['responseCode'], '2'),
+            success: true,
             transactionId: $request->orderId,
             merchantOrderId: $request->orderId,
-            redirectUrl: $response['redirectUrl'] ?? $response['redirecturl'] ?? null,
-            expiryTime: isset($response['expiryTime']) ? \Carbon\Carbon::parse($response['expiryTime']) : null,
-            rawResponse: $response
+            redirectUrl: route('jinah.payment.index', ['order_id' => $request->orderId]),
+            expiryTime: Carbon::now()->addHour(1),
+            rawResponse: []
         );
     }
 
@@ -59,9 +70,6 @@ class FinPayService implements PaymentServiceContract
     private function buildPayload(PaymentRequest $request, $sourceOfFunds = null): array
     {
         $amount = intval($request->amount);
-        $nameSplit = explode(' ', $request->customerName, 2);
-        $firstName = $nameSplit[0];
-        $lastName = $nameSplit[1] ?? $firstName;
         $phone = $request->customerPhone ?? '0';
         if (str_starts_with($phone, '0')) {
             $phone = '+62' . substr($phone, 1);
@@ -83,10 +91,9 @@ class FinPayService implements PaymentServiceContract
                 'backUrl' => $request->returnUrl,
             ],
             'customer' => [
-                'firstName' => $firstName,
-                'lastName' => $lastName,
+                'name' => $request->customerName,
                 'email' => $request->customerEmail,
-                'mobilePhone' => $phone,
+                'phone' => $phone,
             ],
         ];
         if (!empty($request->items)) {
@@ -157,31 +164,8 @@ class FinPayService implements PaymentServiceContract
 
     public function initiateChannel(PaymentRequest $request, $type): PaymentResponse
     {
-        $payload = $this->buildPayload($request, $type);
-        $response = $this->sendSignedRequest('/pg/payment/card/initiate', $payload);
-        $contentType = null;
-        $content = null;
-        if (str_starts_with($type, 'va')) {
-            $contentType = PaymentResponse::CONTENT_TYPE_VA;
-            $content = $response['paymentCode'] ?? null;
-        } elseif (str_starts_with($type, 'qr')) {
-            $contentType = PaymentResponse::CONTENT_TYPE_QR;
-            $content = $response['stringQr'] ?? null;
-            $content = (new QRCode())->render(json_encode($content));
-        } 
-        // else if (str_starts_with($type, 'cc')) {
-        //     $contentType = PaymentResponse::CONTENT_TYPE_CC;
-        //     $content = $response['redirecturl'] ?? null;
-        // }
-        return new PaymentResponse(
-            success: str_starts_with($response['responseCode'], '2'),
-            transactionId: $request->orderId,
-            merchantOrderId: $request->orderId,
-            redirectUrl: $response['redirecturl'] ?? $response['redirectUrl'] ?? null,
-            expiryTime: isset($response['expiryTime']) ? \Carbon\Carbon::parse($response['expiryTime']) : null,
-            rawResponse: $response,
-            contentType: $contentType,
-            content: $content
-        );
+        $channelUsed = config('jinah.services.jinah.channels.' . $type);
+        $service = app()->makeWith('jinah.service', ['service' => $channelUsed['service']]);
+        return $service->initiateChannel($request, $type);
     }
 }

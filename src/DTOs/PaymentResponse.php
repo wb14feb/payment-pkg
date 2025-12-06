@@ -6,6 +6,11 @@ use Carbon\Carbon;
 
 class PaymentResponse
 {
+
+    const CONTENT_TYPE_QR = 'qr';
+    const CONTENT_TYPE_VA = 'va';
+    const CONTENT_TYPE_CC = 'cc';
+
     public function __construct(
         public readonly bool $success,
         public readonly ?string $via = null,
@@ -19,7 +24,9 @@ class PaymentResponse
         public readonly ?string $errorCode = null,
         public readonly ?string $redirectUrl = null,
         public readonly ?Carbon $expiryTime = null,
-        public readonly array $rawResponse = []
+        public readonly array $rawResponse = [],
+        public readonly ?string $contentType = null,
+        public readonly ?string $content = null,
     ) {}
 
     public function toArray(): array
@@ -35,6 +42,8 @@ class PaymentResponse
             'message' => $this->message,
             'error_code' => $this->errorCode,
             'raw_response' => $this->rawResponse,
+            'content_type' => $this->contentType,
+            'content' => $this->content,
         ];
     }
 
