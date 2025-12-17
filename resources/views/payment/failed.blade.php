@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Failed - Jinah</title>
+    <title>Pembayaran Gagal - Jinah</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -37,15 +37,15 @@
             <div class="card-body">
                 <i class="fas fa-times-circle failed-icon"></i>
                 
-                <h1 class="h2 text-danger mb-4">Payment Failed</h1>
+                <h1 class="h2 text-danger mb-4">Pembayaran Gagal</h1>
                 
                 <p class="lead text-muted mb-4">
-                    We're sorry, but your payment could not be processed at this time.
+                    Maaf, pembayaran Anda tidak dapat diproses saat ini.
                 </p>
                 
                 @if($transactionId)
                     <div class="alert alert-warning">
-                        <strong>Reference ID:</strong> {{ $transactionId }}
+                        <strong>ID Referensi:</strong> {{ $transactionId }}
                     </div>
                 @endif
                 
@@ -59,22 +59,22 @@
                     <div class="col-md-4 mb-3">
                         <div class="text-center">
                             <i class="fas fa-credit-card text-primary mb-2" style="font-size: 2rem;"></i>
-                            <h6>Check Payment Details</h6>
-                            <small class="text-muted">Verify card info and try again</small>
+                            <h6>Periksa Detail Pembayaran</h6>
+                            <small class="text-muted">Verifikasi info kartu dan coba lagi</small>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <div class="text-center">
                             <i class="fas fa-wifi text-primary mb-2" style="font-size: 2rem;"></i>
-                            <h6>Check Connection</h6>
-                            <small class="text-muted">Ensure stable internet</small>
+                            <h6>Periksa Koneksi</h6>
+                            <small class="text-muted">Pastikan internet stabil</small>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <div class="text-center">
                             <i class="fas fa-headset text-primary mb-2" style="font-size: 2rem;"></i>
-                            <h6>Contact Support</h6>
-                            <small class="text-muted">We're here to help</small>
+                            <h6>Hubungi Dukungan</h6>
+                            <small class="text-muted">Kami siap membantu</small>
                         </div>
                     </div>
                 </div>
@@ -84,25 +84,25 @@
                 <div class="d-grid gap-2 d-md-block">
                     <a href="{{ route('jinah.payment.index') }}" class="btn btn-primary">
                         <i class="fas fa-redo me-2"></i>
-                        Try Again
+                        Coba Lagi
                     </a>
                     <a href="mailto:support@example.com" class="btn btn-outline-danger">
                         <i class="fas fa-envelope me-2"></i>
-                        Contact Support
+                        Hubungi Dukungan
                     </a>
                     <a href="/" class="btn btn-outline-secondary">
                         <i class="fas fa-home me-2"></i>
-                        Back to Home
+                        Kembali ke Beranda
                     </a>
                 </div>
                 
                 <div class="mt-4 pt-4 border-top">
-                    <h6 class="text-muted">Common Solutions:</h6>
+                    <h6 class="text-muted">Solusi Umum:</h6>
                     <ul class="list-unstyled small text-muted text-start">
-                        <li><i class="fas fa-check text-success me-2"></i>Verify your card details are correct</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Ensure sufficient funds are available</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Check if your card is enabled for online payments</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Try using a different payment method</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Verifikasi detail kartu Anda sudah benar</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Pastikan saldo mencukupi</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Periksa apakah kartu Anda diaktifkan untuk pembayaran online</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Coba gunakan metode pembayaran yang berbeda</li>
                     </ul>
                 </div>
             </div>

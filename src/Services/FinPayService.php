@@ -53,7 +53,7 @@ class FinPayService implements PaymentServiceContract
     public function check(string $orderId): WebhookPayload
     {
         $response = $this->sendSignedRequest('/pg/payment/card/check/' . $orderId, [], 'GET');
-        return WebhookPayload::fromFinpay($response['data']);
+        return WebhookPayload::fromFinpay($response['data'] ?? []);
     }
 
     private function buildPayload(PaymentRequest $request, $sourceOfFunds = null): array
@@ -92,18 +92,19 @@ class FinPayService implements PaymentServiceContract
         if (!empty($request->items)) {
             $payload['order'] = [
                 ...$payload['order'],
-                'itemAmount' => $amount,
-                'item' => array_map(function (PaymentItemRequest $item) {
+                'itemAmount' => $request->discount ? null : $amount,
+                'item' => $request->discount ? null : array_map(function (PaymentItemRequest $item, $index) use ($request) {
+                    $unitPrice = $item->price;
                     return [
                         'name' => $item->name,
                         'quantity' => $item->quantity,
-                        'unitPrice' => $item->price,
+                        'unitPrice' => $unitPrice,
                         'sku' => $item->sku,
                         'brand' => $item->brand,
                         'category' => $item->category,
                         'description' => $item->description,
                     ];
-                }, $request->items)
+                }, $request->items, array_keys($request->items))
             ];
         }
         if ($sourceOfFunds) {

@@ -6,22 +6,11 @@ use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\DTOs\PaymentItemRequest;
 use AnyTech\Jinah\DTOs\PaymentRequest;
 use AnyTech\Jinah\DTOs\PaymentResponse;
-use AnyTech\Jinah\DTOs\TransactionInquiry;
 use AnyTech\Jinah\DTOs\WebhookPayload;
-use AnyTech\Jinah\Exceptions\ApiException;
-use AnyTech\Jinah\Exceptions\PaymentException;
-use AnyTech\Jinah\Factories\PaymentServiceFactory;
 use Carbon\Carbon;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 use Http;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Psr\Http\Message\ResponseInterface;
 
 class JinahService implements PaymentServiceContract
 {
@@ -63,8 +52,12 @@ class JinahService implements PaymentServiceContract
 
     public function check(string $orderId): WebhookPayload
     {
-        $response = $this->sendSignedRequest('/pg/payment/card/check/' . $orderId, [], 'GET');
-        return WebhookPayload::fromFinpay($response['data']);
+        $channelUsed = Cache::get('jinah_channel_type_' . $orderId);
+        if (empty($channelUsed)) {
+            $channelUsed['service'] = 'finpay';
+        }
+        $service = app()->makeWith('jinah.service', ['service' => $channelUsed['service']]);
+        return $service->check($orderId);
     }
 
     private function buildPayload(PaymentRequest $request, $sourceOfFunds = null): array
@@ -83,6 +76,7 @@ class JinahService implements PaymentServiceContract
                 'id' => $request->orderId,
                 'amount' => $amount,
                 'description' => $request->description,
+                'discount' => $request->discount,
             ],
             'url' => [
                 'callbackUrl' => route('jinah.webhook', ['service' => 'finpay']),
@@ -157,6 +151,7 @@ class JinahService implements PaymentServiceContract
                 return $httpClient->post($baseUrl . $endpoint, $body)->throw()->json();
             }
         } catch (\Illuminate\Http\Client\RequestException $e) {
+            Log::error($e->getMessage());
             $responseBody = $e->response ? $e->response->body() : null;
             return $responseBody ? json_decode($responseBody, true) : [];
         }
@@ -165,6 +160,7 @@ class JinahService implements PaymentServiceContract
     public function initiateChannel(PaymentRequest $request, $type): PaymentResponse
     {
         $channelUsed = config('jinah.services.jinah.channels.' . $type);
+        Cache::put('jinah_channel_type_' . $request->orderId, $channelUsed, now()->addMinutes(20));
         $service = app()->makeWith('jinah.service', ['service' => $channelUsed['service']]);
         return $service->initiateChannel($request, $type);
     }

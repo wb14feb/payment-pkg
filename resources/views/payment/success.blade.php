@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - Jinah</title>
+    <title>Pembayaran Berhasil - Jinah</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -36,47 +36,61 @@
         <div class="success-card card">
             <div class="card-body">
                 <i class="fas fa-check-circle success-icon"></i>
+
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+                    </div>
+                @endif
                 
-                <h1 class="h2 text-success mb-4">Payment Initiated!</h1>
+                <h1 class="h2 text-success mb-4">Pembayaran Dimulai!</h1>
                 
                 <p class="lead text-muted mb-4">
-                    Please complete your payment using the details below.
+                    Silakan selesaikan pembayaran Anda menggunakan detail di bawah ini.
                 </p>
                 
                 @if($transactionId)
                     <div class="alert alert-info">
-                        <strong>Transaction ID:</strong> {{ $transactionId }}
+                        <strong>ID Transaksi:</strong> {{ $transactionId }}
                     </div>
                 @endif
                 
                 @if($amount)
                     <div class="mb-4">
                         <span class="h4 text-primary">{{ number_format($amount, 2) }}</span>
-                        <small class="text-muted">Amount to pay</small>
+                        <small class="text-muted">Jumlah yang harus dibayar</small>
                     </div>
                 @endif
 
                 @if($contentType === 'va' && $content)
                     <div class="alert alert-warning mb-4">
-                        <h5 class="alert-heading"><i class="fas fa-university me-2"></i>Virtual Account Number</h5>
+                        <h5 class="alert-heading"><i class="fas fa-university me-2"></i>Nomor Virtual Account{{ $paymentMethodName ? ' - ' . $paymentMethodName : '' }}</h5>
                         <hr>
                         <div class="text-center my-3">
                             <h2 class="font-monospace text-dark">{{ $content }}</h2>
                         </div>
-                        <p class="mb-0 small">Please transfer the exact amount to this virtual account number.</p>
+                        <p class="mb-0 small">Silakan transfer jumlah yang tepat ke nomor virtual account ini.</p>
                     </div>
                 @elseif($contentType === 'qr' && $content)
                     <div class="alert alert-warning mb-4">
-                        <h5 class="alert-heading"><i class="fas fa-qrcode me-2"></i>Scan QR Code</h5>
+                        <h5 class="alert-heading"><i class="fas fa-qrcode me-2"></i>Pindai Kode QR</h5>
                         <hr>
                         <div class="text-center my-3">
                             <img src="{{ $content }}" alt="QR Code" class="img-fluid" style="max-width: 300px;">
                         </div>
-                        <p class="mb-0 small">Scan this QR code using your mobile banking app.</p>
+                        <p class="mb-0 small">Pindai kode QR ini menggunakan aplikasi mobile banking Anda.</p>
                     </div>
                 @elseif($contentType === 'cc' && $content)
                     <div class="mb-4">
-                        <h5><i class="fas fa-credit-card me-2"></i>Complete Payment</h5>
+                        <h5><i class="fas fa-credit-card me-2"></i>Selesaikan Pembayaran</h5>
                         <hr>
                         <iframe 
                             src="{{ $content }}" 
@@ -90,23 +104,10 @@
                 @endif
                 
                 <div class="row mt-4">
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-envelope text-primary me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Email Confirmation</h6>
-                                <small class="text-muted">Receipt sent to your email</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-clock text-primary me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Processing Time</h6>
-                                <small class="text-muted">Immediately</small>
-                            </div>
-                        </div>
+                    <div class="col-12">
+                        <a href="{{ route('jinah.payment.status', ['transactionId' => $transactionId ?? 0]) }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sync-alt me-2"></i>Cek Status Pembayaran
+                        </a>
                     </div>
                 </div>
                 

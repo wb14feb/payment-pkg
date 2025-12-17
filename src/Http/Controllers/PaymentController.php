@@ -16,11 +16,34 @@ use Illuminate\Support\Facades\Validator;
 class PaymentController extends Controller
 {
     /**
+     * Get available payment methods with fees
+     */
+    private function getPaymentMethods(): array
+    {
+        return [
+            // ['id' => 'cc', 'name' => 'Credit Card', 'icon' => 'credit-card', 'fee' => 0],
+            ['id' => 'qris', 'name' => 'QRIS', 'icon' => 'qrcode', 'fee' => 0],
+            ['id' => 'vabca', 'name' => 'Virtual Account BCA', 'icon' => 'bca', 'fee' => 3500],
+            ['id' => 'vabni', 'name' => 'Virtual Account BNI', 'icon' => 'bni', 'fee' => 3500],
+            ['id' => 'vamandiri', 'name' => 'Virtual Account Mandiri', 'icon' => 'mandiri', 'fee' => 3500],
+            ['id' => 'vabri', 'name' => 'Virtual Account BRI', 'icon' => 'bri', 'fee' => 3500],
+        ];
+    }
+
+    /**
      * Display the payment page
      */
-    public function index(): View
+    public function index()
     {
         $payload = $this->loadOrderPayload(request()->query('order_id'));
+
+        $service = app()->makeWith('jinah.service', ['service' => 'jinah']);
+        $paymentCheck = $service->check(request()->query('order_id'));
+        if ($paymentCheck->transactionId) {
+            return redirect()
+                ->route('jinah.payment.success', ['transactionId' => $paymentCheck->transactionId]);
+        }
+
         $items = [];
         if (isset($payload['order']['item'])) {
             $id = 1;
@@ -39,18 +62,12 @@ class PaymentController extends Controller
         $customerInfo = $payload['customer'] ?? [];
 
         // Available payment methods
-        $paymentMethods = [
-            ['id' => 'cc', 'name' => 'Credit Card', 'icon' => 'credit-card'],
-            ['id' => 'qris', 'name' => 'QRIS', 'icon' => 'qrcode'],
-            ['id' => 'vabca', 'name' => 'Virtual Account BCA', 'icon' => 'bca'],
-            ['id' => 'vabni', 'name' => 'Virtual Account BNI', 'icon' => 'bni'],
-            ['id' => 'vamandiri', 'name' => 'Virtual Account Mandiri', 'icon' => 'mandiri'],
-            ['id' => 'vabri', 'name' => 'Virtual Account BRI', 'icon' => 'bri'],
-        ];
+        $paymentMethods = $this->getPaymentMethods();
 
         $orderId = request()->query('order_id');
+        $order = $payload['order'] ?? null;
 
-        return view('jinah::payment.index', compact('items', 'paymentMethods', 'customerInfo', 'orderId'));
+        return view('jinah::payment.index', compact('items', 'paymentMethods', 'customerInfo', 'orderId', 'order'));
     }
 
     /**
@@ -81,6 +98,16 @@ class PaymentController extends Controller
         try {
             $orderPayload = $this->loadOrderPayload($request->input('order_id'));
             $service = app()->makeWith('jinah.service', ['service' => 'jinah']);
+            
+            // Get payment method fee
+            $paymentMethods = $this->getPaymentMethods();
+            $selectedMethod = collect($paymentMethods)->firstWhere('id', $request->input('payment_method'));
+            $fee = $selectedMethod['fee'] ?? 0;
+            
+            // Calculate total amount with fee
+            $baseAmount = $orderPayload['order']['amount'] ?? 0;
+            $totalAmount = $baseAmount + $fee;
+            
             // Create payment items
             $paymentItems = collect($orderPayload['order']['item'] ?? [])->map(function ($item) {
                 return new PaymentItemRequest(
@@ -97,17 +124,25 @@ class PaymentController extends Controller
             // Create payment request
             $paymentRequest = new PaymentRequest(
                 orderId: $request->input('order_id'),
-                amount: $orderPayload['order']['amount'] ?? 0,
+                amount: $baseAmount,
                 currency: $orderPayload['order']['currency'] ?? 'IDR',
                 customerEmail: $request->input('customer_email'),
                 customerName: $request->input('customer_name'),
                 customerPhone: $request->input('customer_phone'),
-                description: 'Payment for selected items',
+                description: 'Pembayaran untuk item yang dipilih',
                 items: $paymentItems,
+                discount: $orderPayload['order']['discount'] ?? 0,
             );
 
             // Process payment through Jinah
             $paymentResponse = $service->initiateChannel($paymentRequest, $request->input('payment_method'));
+            Cache::put('jinah_order_destination_' . $request->input('order_id'), [
+                'content_type' => $paymentResponse->contentType,
+                'content' => $paymentResponse->content,
+                'amount' => $baseAmount,
+                'taxedAmount' => $totalAmount,
+                'payment_method_name' => $selectedMethod['name'] ?? null,
+            ], now()->addMinutes(20));
 
             if ($paymentResponse->success && $paymentResponse->content != null) {
                 return redirect()
@@ -124,26 +159,32 @@ class PaymentController extends Controller
 
             return redirect()->route('jinah.payment.failed', ['order_id' => $request->input('order_id')]);
         } catch (\Exception $e) {
+            Log::error('Payment processing error: ' . $e->getMessage(), [
+                'order_id' => $request->input('order_id'),
+                'stack' => $e->getTraceAsString(),
+            ]);
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Payment processing failed: ' . $e->getMessage()
+                    'message' => 'Pemrosesan pembayaran gagal: ' . $e->getMessage()
                 ], 500);
             }
 
-            return back()->withErrors(['payment' => 'Payment processing failed. Please try again.'])->withInput();
+            return back()->withErrors(['payment' => 'Pemrosesan pembayaran gagal. Silakan coba lagi.'])->withInput();
         }
     }
 
     
     public function success(Request $request): View
     {
+        $orderDestination = Cache::get('jinah_order_destination_' . session('order.order_id'));
         $transactionId = session('order.order_id');
-        $amount = session('order.amount');
-        $content = session('order.content');
-        $contentType = session('order.content_type');
+        $amount = $orderDestination['taxedAmount'] ?? null;
+        $content = $orderDestination['content'] ?? null;
+        $contentType = $orderDestination['content_type'] ?? null;
+        $paymentMethodName = $orderDestination['payment_method_name'] ?? null;
         
-        return view('jinah::payment.success', compact('transactionId', 'amount', 'content', 'contentType'));
+        return view('jinah::payment.success', compact('transactionId', 'amount', 'content', 'contentType', 'paymentMethodName'));
     }
 
     public function failed(Request $request): View
@@ -152,6 +193,33 @@ class PaymentController extends Controller
         $error = $request->query('error', 'Payment failed');
         
         return view('jinah::payment.failed', compact('transactionId', 'error'));
+    }
+
+    public function status(string $transactionId)
+    {
+        $service = app()->makeWith('jinah.service', ['service' => 'jinah']);
+        $statusResponse = $service->check($transactionId);
+        $orderPayload = $this->loadOrderPayload($transactionId);
+
+        if ($statusResponse->isPaymentSuccessful()) {
+            $backUrl = $orderPayload['url']['successUrl'] ?? $orderPayload['url']['backUrl'] ?? null;
+            if ($backUrl) {
+                return redirect($backUrl)->with('success', 'Pembayaran berhasil untuk ID transaksi: ' . $transactionId);
+            }
+            return back()->with([
+                'success' => 'Pembayaran berhasil untuk ID transaksi: ' . $transactionId,
+                'order' => [
+                    'order_id' => $transactionId,
+                ]
+            ]);
+        }
+
+        return back()->with([
+            'error' => 'Pembayaran belum selesai untuk ID transaksi: ' . $transactionId,
+            'order' => [
+                'order_id' => $transactionId,
+            ]
+        ]);
     }
 
     private function loadOrderPayload(string $orderId): ?array

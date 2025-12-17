@@ -16,7 +16,7 @@
                                     <small class="text-muted">{{ strtoupper($item['currency']) }}</small>
                                 </div>
                                 <div class="quantity-display">
-                                    <label class="form-label small">Quantity:</label>
+                                    <label class="form-label small">Jumlah:</label>
                                     <div class="badge bg-secondary fs-6">{{ $item['quantity'] }}</div>
                                     <input type="hidden" 
                                            class="quantity-input" 
@@ -35,7 +35,7 @@
 @if(count($items) === 0)
     <div class="text-center py-5">
         <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-        <h4 class="text-muted">No items available</h4>
-        <p class="text-muted">Please check back later for available items.</p>
+        <h4 class="text-muted">Tidak ada item tersedia</h4>
+        <p class="text-muted">Silakan periksa kembali nanti untuk item yang tersedia.</p>
     </div>
 @endif

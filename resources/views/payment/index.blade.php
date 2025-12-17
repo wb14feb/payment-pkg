@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment - Jinah</title>
+    <title>Pembayaran - Jinah</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Bootstrap CSS -->
@@ -74,7 +74,7 @@
                     <div class="card-body">
                         <h4 class="mb-4">
                             <i class="fas fa-receipt me-2"></i>
-                            Order Summary
+                            Ringkasan Pesanan
                         </h4>
                         
                         <div id="selectedItems" class="mb-3">
@@ -88,27 +88,37 @@
                                     <span>Rp. {{ number_format($item['price'] * $item['quantity']) }}</span>
                                 </div>
                             @endforeach
+
+
+
                         </div>
                         
                         <hr>
                         
+                        @if(isset($order['discount']) && $order['discount'] > 0)
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-success">Diskon:</span>
+                                <span class="text-success">- Rp. {{ number_format($order['discount']) }}</span>
+                            </div>
+                        @endif
+                        
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">Total Amount:</h5>
-                            <h4 class="mb-0 text-primary" id="totalAmount">Rp. {{ number_format(array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $items))) }}</h4>
+                            <h5 class="mb-0">Total Pembayaran:</h5>
+                            <h4 class="mb-0 text-primary" id="totalAmount">Rp. {{ number_format(array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $items)) - ($order['discount'] ?? 0)) }}</h4>
                         </div>
                         
                         <div class="mt-4">
                             <div class="d-flex align-items-center mb-2">
                                 <i class="fas fa-shield-alt text-success me-2"></i>
-                                <small class="text-muted">Secure payment processing</small>
+                                <small class="text-muted">Proses pembayaran aman</small>
                             </div>
                             <div class="d-flex align-items-center mb-2">
                                 <i class="fas fa-lock text-success me-2"></i>
-                                <small class="text-muted">SSL encrypted transactions</small>
+                                <small class="text-muted">Transaksi terenkripsi SSL</small>
                             </div>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-undo text-success me-2"></i>
-                                <small class="text-muted">Money-back guarantee</small>
+                                <small class="text-muted">Jaminan uang kembali</small>
                             </div>
                         </div>
                     </div>
@@ -121,7 +131,7 @@
                     <div class="card-body">
                         <h2 class="card-title mb-4">
                             <i class="fas fa-shopping-cart me-2"></i>
-                            Complete Your Purchase
+                            Selesaikan Pembelian Anda
                         </h2>
                         
                         <form id="paymentForm" action="{{ route('jinah.payment.process') }}" method="POST">
@@ -129,13 +139,13 @@
                             
                             <!-- Customer Information -->
                             <div class="step-header">
-                                <h4>Customer Information</h4>
+                                <h4>Informasi Pelanggan</h4>
                             </div>
                             
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="customer_name" class="form-label">Full Name</label>
+                                        <label for="customer_name" class="form-label">Nama Lengkap</label>
                                         <input type="text" 
                                                class="form-control {{ ($errors ?? false) && $errors->has('customer_name') ? 'is-invalid' : '' }}" 
                                                id="customer_name" 
@@ -149,7 +159,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="customer_email" class="form-label">Email Address</label>
+                                        <label for="customer_email" class="form-label">Alamat Email</label>
                                         <input type="email" 
                                                class="form-control {{ ($errors ?? false) && $errors->has('customer_email') ? 'is-invalid' : '' }}" 
                                                id="customer_email" 
@@ -163,7 +173,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="customer_phone" class="form-label">Phone Number</label>
+                                        <label for="customer_phone" class="form-label">Nomor Telepon</label>
                                         <input type="tel" 
                                                class="form-control {{ ($errors ?? false) && $errors->has('customer_phone') ? 'is-invalid' : '' }}" 
                                                id="customer_phone" 
@@ -179,7 +189,7 @@
                             
                             <!-- Payment Method -->
                             <div class="step-header">
-                                <h4>Choose Payment Method</h4>
+                                <h4>Pilih Metode Pembayaran</h4>
                             </div>
                             
                             @include('jinah::payment.partials.payment-methods', ['paymentMethods' => $paymentMethods])
@@ -199,7 +209,7 @@
                                         class="btn btn-primary btn-lg" 
                                         disabled>
                                     <i class="fas fa-credit-card me-2"></i>
-                                    Proceed to Payment
+                                    Lanjutkan Pembayaran
                                 </button>
                             </div>
                         </form>
@@ -230,7 +240,7 @@
                 const selectedPaymentMethod = getSelectedPaymentMethod();
                 
                 if (!selectedPaymentMethod) {
-                    alert('Please select a payment method.');
+                    alert('Silakan pilih metode pembayaran.');
                     return;
                 }
                 
@@ -258,7 +268,7 @@
                 
                 // Submit form
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
                 
                 form.submit();
             });
