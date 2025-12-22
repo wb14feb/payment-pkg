@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## v1.4.0 - 2025-12-22
+
+Better
+
 ## v1.3.0 - 2025-12-17
 
 Use bahasa indonesia
