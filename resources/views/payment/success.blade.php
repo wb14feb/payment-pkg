@@ -76,6 +76,9 @@
                         <hr>
                         <div class="text-center my-3">
                             <h2 class="font-monospace text-dark">{{ $content }}</h2>
+                            <button class="btn btn-sm btn-outline-primary mt-2" id="copyButton" onclick="copyToClipboard('{{ $content }}', this)">
+                                <i class="fas fa-copy me-1"></i>Salin Nomor
+                            </button>
                         </div>
                         <p class="mb-0 small">Silakan transfer jumlah yang tepat ke nomor virtual account ini.</p>
                     </div>
@@ -83,9 +86,16 @@
                     <div class="alert alert-warning mb-4">
                         <h5 class="alert-heading"><i class="fas fa-qrcode me-2"></i>Pindai Kode QR</h5>
                         <hr>
+                        <p class="text-center"><strong>CV Abinathayana</strong></p>
                         <div class="text-center my-3">
-                            <img src="{{ $content }}" alt="QR Code" class="img-fluid" style="max-width: 300px;">
+                            <img src="{{ $content }}" alt="QR Code" class="img-fluid" style="max-width: 300px;" id="qrCodeImage">
                         </div>
+                        <div class="text-center mb-3">
+                            <a href="{{ $content }}" download="qr-code-{{ $transactionId ?? 'payment' }}.svg" class="btn btn-primary btn-sm">
+                                <i class="fas fa-download me-2"></i>Unduh QR Code
+                            </a>
+                        </div>
+
                         <p class="mb-0 small">Pindai kode QR ini menggunakan aplikasi mobile banking Anda.</p>
                     </div>
                 @elseif($contentType === 'cc' && $content)
@@ -118,5 +128,34 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(function() {
+                button.innerHTML = '<i class="fas fa-check me-1"></i>Sudah tersalin';
+                button.classList.remove('btn-outline-primary');
+                button.classList.add('btn-success');
+                
+                // Reset button after 2 seconds
+                setTimeout(function() {
+                    button.innerHTML = '<i class="fas fa-copy me-1"></i>Salin Nomor';
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-primary');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Gagal menyalin: ', err);
+            });
+        }
+    </script>
+    
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-5">
+        <div class="container">
+            <small class="text-muted">
+                Powered by 
+                <img src="https://i.postimg.cc/W3X5cx2h/finpay-logo.png" alt="FinPay" style="height: 20px; vertical-align: middle; margin-left: 5px;">
+            </small>
+        </div>
+    </footer>
 </body>
 </html>

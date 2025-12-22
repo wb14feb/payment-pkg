@@ -39,7 +39,7 @@ class JinahService implements PaymentServiceContract
     public function initiate(PaymentRequest $request): PaymentResponse
     {
         $payload = $this->buildPayload($request);
-        Cache::put('jinah_payload_' . $request->orderId, $payload, now()->addMinutes(20));
+        Cache::put('jinah_payload_' . $request->orderId, $payload, now()->addHours(3));
         return new PaymentResponse(
             success: true,
             transactionId: $request->orderId,
@@ -160,7 +160,7 @@ class JinahService implements PaymentServiceContract
     public function initiateChannel(PaymentRequest $request, $type): PaymentResponse
     {
         $channelUsed = config('jinah.services.jinah.channels.' . $type);
-        Cache::put('jinah_channel_type_' . $request->orderId, $channelUsed, now()->addMinutes(20));
+        Cache::put('jinah_channel_type_' . $request->orderId, $channelUsed, now()->addHours(3));
         $service = app()->makeWith('jinah.service', ['service' => $channelUsed['service']]);
         return $service->initiateChannel($request, $type);
     }

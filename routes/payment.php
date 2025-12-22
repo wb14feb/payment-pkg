@@ -9,11 +9,11 @@ Route::group(['prefix' => 'jinah/payment', 'as' => 'jinah.payment.', 'middleware
     Route::get('/', [PaymentController::class, 'index'])->name('index');
     
     // Process payment
-    Route::post('/process', [PaymentController::class, 'process'])->name('process');
+    Route::post('/process/{transactionId}', [PaymentController::class, 'process'])->name('process');
     
     // Payment result pages
-    Route::get('/success', [PaymentController::class, 'success'])->name('success');
-    Route::get('/failed', [PaymentController::class, 'failed'])->name('failed');
+    Route::get('/success/{transactionId}', [PaymentController::class, 'success'])->name('success');
+    Route::get('/failed/{transactionId}', [PaymentController::class, 'failed'])->name('failed');
 
     Route::get('/status/{transactionId}', [PaymentController::class, 'status'])->name('status');
 });

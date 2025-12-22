@@ -67,6 +67,10 @@ class JinahServiceProvider extends PackageServiceProvider
             $this->publishes([
                 $this->package->basePath('/../database/migrations') => database_path('migrations'),
             ], 'jinah-migrations');
+
+            $this->publishes([
+                $this->package->basePath('/../resources/assets') => public_path('vendor/jinah'),
+            ], 'jinah-assets');
         }
     }
 }

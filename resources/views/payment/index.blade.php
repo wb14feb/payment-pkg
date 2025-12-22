@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Jinah Package CSS -->
+    <link href="{{ asset('vendor/jinah/css/jinah.css') }}" rel="stylesheet">
     
     <style>
         .payment-container {
@@ -134,7 +136,7 @@
                             Selesaikan Pembelian Anda
                         </h2>
                         
-                        <form id="paymentForm" action="{{ route('jinah.payment.process') }}" method="POST">
+                        <form id="paymentForm" action="{{ route('jinah.payment.process', ['transactionId' => $orderId]) }}" method="POST">
                             @csrf
                             
                             <!-- Customer Information -->
@@ -221,6 +223,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Jinah Package JS -->
+    <script src="{{ asset('vendor/jinah/js/jinah.js') }}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -311,6 +315,14 @@
                 return document.getElementById('selectedPaymentMethod').value;
             }
         });
-    </script>
-</body>
+    </script>    
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-5">
+        <div class="container">
+            <small class="text-muted">
+                Powered by 
+                <img src="https://i.postimg.cc/W3X5cx2h/finpay-logo.png" alt="FinPay" style="height: 20px; vertical-align: middle; margin-left: 5px;">
+            </small>
+        </div>
+    </footer></body>
 </html>

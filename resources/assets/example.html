@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jinah Assets Example - Standalone</title>
+    
+    <!-- Bootstrap CSS (Required) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome (Required for icons) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Jinah Package CSS -->
+    <link href="css/jinah.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Jinah Package Assets Example</h1>
+        
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            This page demonstrates the Jinah package assets working independently.
+        </div>
+
+        <div class="payment-container">
+            <div class="row">
+                <!-- Order Summary -->
+                <div class="col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h4 class="mb-4">
+                                <i class="fas fa-receipt me-2"></i>
+                                Order Summary
+                            </h4>
+                            
+                            <div id="selectedItems" class="mb-3">
+                                <div class="order-item" data-item-id="1" data-item-price="100000" data-item-quantity="1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="order-item-name">Product Example 1</div>
+                                            <div class="order-item-detail">Qty: 1 × Rp. 100.000</div>
+                                        </div>
+                                        <div class="order-item-price">Rp. 100.000</div>
+                                    </div>
+                                </div>
+                                <div class="order-item" data-item-id="2" data-item-price="50000" data-item-quantity="2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="order-item-name">Product Example 2</div>
+                                            <div class="order-item-detail">Qty: 2 × Rp. 50.000</div>
+                                        </div>
+                                        <div class="order-item-price">Rp. 100.000</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Total Payment:</h5>
+                                <h4 class="mb-0 text-primary" id="totalAmount">Rp. 200.000</h4>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <div class="security-feature">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <small>Secure payment process</small>
+                                </div>
+                                <div class="security-feature">
+                                    <i class="fas fa-lock"></i>
+                                    <small>SSL encrypted transaction</small>
+                                </div>
+                                <div class="security-feature">
+                                    <i class="fas fa-undo"></i>
+                                    <small>Money back guarantee</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Form -->
+                <div class="col-lg-7">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h2 class="card-title mb-4">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Complete Your Purchase
+                            </h2>
+                            
+                            <form id="paymentForm" action="#" method="POST">
+                                <!-- Customer Information -->
+                                <div class="step-header">
+                                    <h4>Customer Information</h4>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label for="customer_name" class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="customer_email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="customer_email" name="customer_email" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="customer_phone" class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Payment Method -->
+                                <div class="step-header">
+                                    <h4>Select Payment Method</h4>
+                                </div>
+                                
+                                <div class="payment-method-card" data-method="credit_card">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-credit-card fa-2x me-3 text-primary"></i>
+                                        <div>
+                                            <div class="payment-name">Credit Card</div>
+                                            <div class="payment-description">Visa, Mastercard, JCB</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="payment-method-card" data-method="bank_transfer">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-university fa-2x me-3 text-primary"></i>
+                                        <div>
+                                            <div class="payment-name">Bank Transfer</div>
+                                            <div class="payment-description">All major banks</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="payment-method-card" data-method="e_wallet">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-wallet fa-2x me-3 text-primary"></i>
+                                        <div>
+                                            <div class="payment-name">E-Wallet</div>
+                                            <div class="payment-description">GoPay, OVO, Dana</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="selectedPaymentMethod" name="payment_method">
+                                
+                                <!-- Payment Button -->
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" id="submitBtn" class="btn btn-primary btn-lg" disabled>
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        Proceed to Payment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <h3>Custom Events Demo</h3>
+            <div id="eventLog" class="card">
+                <div class="card-body">
+                    <pre id="eventLogContent" style="max-height: 300px; overflow-y: auto;">Event log will appear here...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (Required) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Jinah Package JS -->
+    <script src="js/jinah.js"></script>
+    
+    <!-- Demo: Listen to custom events -->
+    <script>
+        const eventLogContent = document.getElementById('eventLogContent');
+        const paymentForm = document.getElementById('paymentForm');
+
+        function logEvent(eventName, detail) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${eventName}: ${JSON.stringify(detail, null, 2)}\n\n`;
+            eventLogContent.textContent = logEntry + eventLogContent.textContent;
+        }
+
+        // Listen to payment method selected
+        paymentForm.addEventListener('jinah:paymentMethodSelected', (e) => {
+            logEvent('paymentMethodSelected', e.detail);
+        });
+
+        // Listen to before submit
+        paymentForm.addEventListener('jinah:beforeSubmit', (e) => {
+            e.preventDefault(); // Prevent actual submission in demo
+            logEvent('beforeSubmit', e.detail);
+            alert('Form submission prevented for demo purposes');
+            return false;
+        });
+
+        // Listen to total calculated
+        paymentForm.addEventListener('jinah:totalCalculated', (e) => {
+            logEvent('totalCalculated', e.detail);
+        });
+
+        // Initial log
+        eventLogContent.textContent = 'Jinah Payment initialized. Select a payment method to see events.\n\n';
+    </script>
+</body>
+</html>

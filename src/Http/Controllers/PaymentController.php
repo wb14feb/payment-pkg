@@ -41,7 +41,7 @@ class PaymentController extends Controller
         $paymentCheck = $service->check(request()->query('order_id'));
         if ($paymentCheck->transactionId) {
             return redirect()
-                ->route('jinah.payment.success', ['transactionId' => $paymentCheck->transactionId]);
+                ->route('jinah.payment.success', ['transactionId' => request()->query('order_id')]);
         }
 
         $items = [];
@@ -73,11 +73,10 @@ class PaymentController extends Controller
     /**
      * Process the payment
      */
-    public function process(Request $request)
+    public function process(Request $request, string $transactionId)
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
-            'order_id' => 'required|string',
             'payment_method' => 'required|string',
             'customer_email' => 'required|email',
             'customer_name' => 'required|string|max:255',
@@ -96,7 +95,7 @@ class PaymentController extends Controller
         }
 
         try {
-            $orderPayload = $this->loadOrderPayload($request->input('order_id'));
+            $orderPayload = $this->loadOrderPayload($transactionId);
             $service = app()->makeWith('jinah.service', ['service' => 'jinah']);
             
             // Get payment method fee
@@ -123,7 +122,7 @@ class PaymentController extends Controller
 
             // Create payment request
             $paymentRequest = new PaymentRequest(
-                orderId: $request->input('order_id'),
+                orderId: $transactionId,
                 amount: $baseAmount,
                 currency: $orderPayload['order']['currency'] ?? 'IDR',
                 customerEmail: $request->input('customer_email'),
@@ -136,19 +135,19 @@ class PaymentController extends Controller
 
             // Process payment through Jinah
             $paymentResponse = $service->initiateChannel($paymentRequest, $request->input('payment_method'));
-            Cache::put('jinah_order_destination_' . $request->input('order_id'), [
+            Cache::put('jinah_order_destination_' . $transactionId, [
                 'content_type' => $paymentResponse->contentType,
                 'content' => $paymentResponse->content,
                 'amount' => $baseAmount,
                 'taxedAmount' => $totalAmount,
                 'payment_method_name' => $selectedMethod['name'] ?? null,
-            ], now()->addMinutes(20));
+            ], now()->addHours(3));
 
             if ($paymentResponse->success && $paymentResponse->content != null) {
                 return redirect()
-                    ->route('jinah.payment.success')
+                    ->route('jinah.payment.success', ['transactionId' => $transactionId])
                     ->with('order', [
-                        'order_id' => $request->input('order_id'),
+                        'order_id' => $transactionId,
                         'content' => $paymentResponse->content,
                         'content_type' => $paymentResponse->contentType,
                         'amount' => $paymentRequest->amount,
@@ -157,10 +156,10 @@ class PaymentController extends Controller
                 return redirect($paymentResponse->redirectUrl ?? '');
             }
 
-            return redirect()->route('jinah.payment.failed', ['order_id' => $request->input('order_id')]);
+            return redirect()->route('jinah.payment.failed', ['transactionId' => $transactionId]);
         } catch (\Exception $e) {
             Log::error('Payment processing error: ' . $e->getMessage(), [
-                'order_id' => $request->input('order_id'),
+                'order_id' => $transactionId,
                 'stack' => $e->getTraceAsString(),
             ]);
             if ($request->expectsJson()) {
@@ -175,10 +174,13 @@ class PaymentController extends Controller
     }
 
     
-    public function success(Request $request): View
+    public function success(Request $request, string $transactionId)
     {
-        $orderDestination = Cache::get('jinah_order_destination_' . session('order.order_id'));
-        $transactionId = session('order.order_id');
+        $orderDestination = Cache::get('jinah_order_destination_' . $transactionId);
+        if (empty($orderDestination)) {
+            return redirect()->route('jinah.payment.failed', ['transactionId' => $transactionId, 'error' => 'Pesanan sudah kedaluwarsa atau tidak ditemukan.']);
+        }
+
         $amount = $orderDestination['taxedAmount'] ?? null;
         $content = $orderDestination['content'] ?? null;
         $contentType = $orderDestination['content_type'] ?? null;
@@ -187,9 +189,8 @@ class PaymentController extends Controller
         return view('jinah::payment.success', compact('transactionId', 'amount', 'content', 'contentType', 'paymentMethodName'));
     }
 
-    public function failed(Request $request): View
+    public function failed(Request $request, string $transactionId): View
     {
-        $transactionId = session('order.order_id');
         $error = $request->query('error', 'Payment failed');
         
         return view('jinah::payment.failed', compact('transactionId', 'error'));

@@ -49,6 +49,22 @@ Optionally, you can publish the views using
 php artisan vendor:publish --tag="jinah-views"
 ```
 
+You can publish the assets (CSS and JavaScript) using
+
+```bash
+php artisan vendor:publish --tag="jinah-assets"
+```
+
+This will copy the assets to `public/vendor/jinah/`. The package includes:
+- `jinah.css` - Modern payment interface styling with responsive design
+- `jinah.js` - Interactive payment form handling and validation
+
+To publish all package resources at once:
+
+```bash
+php artisan vendor:publish --provider="AnyTech\Jinah\JinahServiceProvider"
+```
+
 ## Usage
 
 ```php
