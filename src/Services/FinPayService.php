@@ -9,6 +9,7 @@ use AnyTech\Jinah\DTOs\PaymentResponse;
 use AnyTech\Jinah\DTOs\WebhookPayload;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
+use chillerlan\QRCode\Output\QROutputInterface;
 use Exception;
 use Http;
 
@@ -168,7 +169,9 @@ class FinPayService implements PaymentServiceContract
         } elseif (str_starts_with($type, 'qr')) {
             $contentType = PaymentResponse::CONTENT_TYPE_QR;
             $content = $response['stringQr'] ?? null;
-            $content = (new QRCode())->render($content);
+            $content = (new QRCode(new QROptions([
+                'outputType' => QROutputInterface::GDIMAGE_PNG,
+            ])))->render($content);
         } 
         // else if (str_starts_with($type, 'cc')) {
         //     $contentType = PaymentResponse::CONTENT_TYPE_CC;

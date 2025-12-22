@@ -91,7 +91,7 @@
                             <img src="{{ $content }}" alt="QR Code" class="img-fluid" style="max-width: 300px;" id="qrCodeImage">
                         </div>
                         <div class="text-center mb-3">
-                            <a href="{{ $content }}" download="qr-code-{{ $transactionId ?? 'payment' }}.svg" class="btn btn-primary btn-sm">
+                            <a href="{{ $content }}" download="qr-code-{{ $transactionId ?? 'payment' }}.png" class="btn btn-primary btn-sm">
                                 <i class="fas fa-download me-2"></i>Unduh QR Code
                             </a>
                         </div>
