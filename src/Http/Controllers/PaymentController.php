@@ -23,10 +23,10 @@ class PaymentController extends Controller
         return [
             // ['id' => 'cc', 'name' => 'Credit Card', 'icon' => 'credit-card', 'fee' => 0],
             ['id' => 'qris', 'name' => 'QRIS', 'icon' => 'qrcode', 'fee' => 0],
-            ['id' => 'vabca', 'name' => 'Virtual Account BCA', 'icon' => 'bca', 'fee' => 3500],
-            ['id' => 'vabni', 'name' => 'Virtual Account BNI', 'icon' => 'bni', 'fee' => 3500],
-            ['id' => 'vamandiri', 'name' => 'Virtual Account Mandiri', 'icon' => 'mandiri', 'fee' => 3500],
-            ['id' => 'vabri', 'name' => 'Virtual Account BRI', 'icon' => 'bri', 'fee' => 3500],
+            // ['id' => 'vabca', 'name' => 'Virtual Account BCA', 'icon' => 'bca', 'fee' => 3500],
+            // ['id' => 'vabni', 'name' => 'Virtual Account BNI', 'icon' => 'bni', 'fee' => 3500],
+            // ['id' => 'vamandiri', 'name' => 'Virtual Account Mandiri', 'icon' => 'mandiri', 'fee' => 3500],
+            // ['id' => 'vabri', 'name' => 'Virtual Account BRI', 'icon' => 'bri', 'fee' => 3500],
         ];
     }
 
