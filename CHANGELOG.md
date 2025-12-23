@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## Admin Fee - 2025-12-23
+
+admin fee
+
 ## Fix svg -> png - 2025-12-22
 
 phone cannot read svg
