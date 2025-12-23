@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## Fix svg -> png - 2025-12-22
+
+phone cannot read svg
+
 ## v1.4.0 - 2025-12-22
 
 Better
