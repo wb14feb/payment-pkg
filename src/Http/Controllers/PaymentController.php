@@ -36,7 +36,7 @@ class PaymentController extends Controller
     public function index()
     {
         $payload = $this->loadOrderPayload(request()->query('order_id'));
-
+        
         $service = app()->makeWith('jinah.service', ['service' => 'jinah']);
         $paymentCheck = $service->check(request()->query('order_id'));
         if ($paymentCheck->transactionId) {

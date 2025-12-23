@@ -90,23 +90,6 @@ class JinahService implements PaymentServiceContract
                 'phone' => $phone,
             ],
         ];
-        if (!empty($request->items)) {
-            $payload['order'] = [
-                ...$payload['order'],
-                'itemAmount' => $amount,
-                'item' => array_map(function (PaymentItemRequest $item) {
-                    return [
-                        'name' => $item->name,
-                        'quantity' => $item->quantity,
-                        'unitPrice' => $item->price,
-                        'sku' => $item->sku,
-                        'brand' => $item->brand,
-                        'category' => $item->category,
-                        'description' => $item->description,
-                    ];
-                }, $request->items)
-            ];
-        }
         if ($sourceOfFunds) {
             $payload['sourceOfFunds'] = [
                 'type' => $sourceOfFunds
@@ -116,12 +99,7 @@ class JinahService implements PaymentServiceContract
             $payload['order'] = [
                 ...$payload['order'],
                 'amount' => $amount + intval($request->getAdminFeeValue()),
-                'itemAmount' => $amount + intval($request->getAdminFeeValue()),
-            ];
-            $payload['order']['item'][] = [
-                'name' => $request->getAdminFeeName(),
-                'quantity' => 1,
-                'unitPrice' => intval($request->getAdminFeeValue()),
+                'adminFee' => intval($request->getAdminFeeValue()),
             ];
         }
         return $payload;

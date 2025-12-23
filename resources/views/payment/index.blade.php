@@ -90,9 +90,6 @@
                                     <span>Rp. {{ number_format($item['price'] * $item['quantity']) }}</span>
                                 </div>
                             @endforeach
-
-
-
                         </div>
                         
                         <hr>
@@ -103,14 +100,21 @@
                                 <span class="text-success">- Rp. {{ number_format($order['discount']) }}</span>
                             </div>
                         @endif
+
+                        @if(isset($order['adminFee']) && $order['adminFee'] > 0)
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-info">Biaya Admin:</span>
+                                <span class="text-info">Rp. {{ number_format($order['adminFee']) }}</span>
+                            </div>
+                        @endif
                         
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">Total Pembayaran:</h5>
-                            <h4 class="mb-0 text-primary" id="totalAmount">Rp. {{ number_format(array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $items)) - ($order['discount'] ?? 0)) }}</h4>
+                            <h4 class="mb-0 text-primary" id="totalAmount">Rp. {{ number_format(array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $items)) - ($order['discount'] ?? 0) + ($order['adminFee'] ?? 0)) }}</h4>
                         </div>
                         
                         <div class="mt-4">
-                            <div class="d-flex align-items-center mb-2">
+                            {{-- <div class="d-flex align-items-center mb-2">
                                 <i class="fas fa-shield-alt text-success me-2"></i>
                                 <small class="text-muted">Proses pembayaran aman</small>
                             </div>
@@ -121,7 +125,7 @@
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-undo text-success me-2"></i>
                                 <small class="text-muted">Jaminan uang kembali</small>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -320,8 +324,7 @@
     <footer class="text-center py-4 mt-5">
         <div class="container">
             <small class="text-muted">
-                Powered by 
-                <img src="https://i.postimg.cc/W3X5cx2h/finpay-logo.png" alt="FinPay" style="height: 20px; vertical-align: middle; margin-left: 5px;">
+                Powered by FINPAY
             </small>
         </div>
     </footer></body>
