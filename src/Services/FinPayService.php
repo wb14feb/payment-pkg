@@ -90,24 +90,24 @@ class FinPayService implements PaymentServiceContract
                 'mobilePhone' => $phone,
             ],
         ];
-        if (!empty($request->items)) {
-            $payload['order'] = [
-                ...$payload['order'],
-                'itemAmount' => $request->discount || $request->getAdminFeeValue() > 0 ? null : $amount,
-                'item' => $request->discount || $request->getAdminFeeValue() > 0 ? null : array_map(function (PaymentItemRequest $item, $index) use ($request) {
-                    $unitPrice = $item->price;
-                    return [
-                        'name' => $item->name,
-                        'quantity' => $item->quantity,
-                        'unitPrice' => $unitPrice,
-                        'sku' => $item->sku,
-                        'brand' => $item->brand,
-                        'category' => $item->category,
-                        'description' => $item->description,
-                    ];
-                }, $request->items, array_keys($request->items))
-            ];
-        }
+        // if (!empty($request->items)) {
+        //     $payload['order'] = [
+        //         ...$payload['order'],
+        //         'itemAmount' => $request->discount || $request->getAdminFeeValue() > 0 ? null : $amount,
+        //         'item' => $request->discount || $request->getAdminFeeValue() > 0 ? null : array_map(function (PaymentItemRequest $item, $index) use ($request) {
+        //             $unitPrice = $item->price;
+        //             return [
+        //                 'name' => $item->name,
+        //                 'quantity' => $item->quantity,
+        //                 'unitPrice' => $unitPrice,
+        //                 'sku' => $item->sku,
+        //                 'brand' => $item->brand,
+        //                 'category' => $item->category,
+        //                 'description' => $item->description,
+        //             ];
+        //         }, $request->items, array_keys($request->items))
+        //     ];
+        // }
         if ($sourceOfFunds) {
             $payload['sourceOfFunds'] = [
                 'type' => $sourceOfFunds
