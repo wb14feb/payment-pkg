@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## fix finpay - 2025-12-23
+
+fix finpay
+
 ## Admin Fee - 2025-12-23
 
 admin fee
