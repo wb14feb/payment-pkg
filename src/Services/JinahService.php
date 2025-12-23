@@ -90,6 +90,22 @@ class JinahService implements PaymentServiceContract
                 'phone' => $phone,
             ],
         ];
+        if (!empty($request->items)) {
+            $payload['order'] = [
+                ...$payload['order'],
+                'item' => array_map(function (PaymentItemRequest $item) {
+                    return [
+                        'name' => $item->name,
+                        'quantity' => $item->quantity,
+                        'unitPrice' => $item->price,
+                        'sku' => $item->sku,
+                        'brand' => $item->brand,
+                        'category' => $item->category,
+                        'description' => $item->description,
+                    ];
+                }, $request->items)
+            ];
+        }
         if ($sourceOfFunds) {
             $payload['sourceOfFunds'] = [
                 'type' => $sourceOfFunds

@@ -93,8 +93,8 @@ class FinPayService implements PaymentServiceContract
         if (!empty($request->items)) {
             $payload['order'] = [
                 ...$payload['order'],
-                'itemAmount' => $request->discount ? null : $amount,
-                'item' => $request->discount ? null : array_map(function (PaymentItemRequest $item, $index) use ($request) {
+                'itemAmount' => $request->discount || $request->getAdminFeeValue() > 0 ? null : $amount,
+                'item' => $request->discount || $request->getAdminFeeValue() > 0 ? null : array_map(function (PaymentItemRequest $item, $index) use ($request) {
                     $unitPrice = $item->price;
                     return [
                         'name' => $item->name,
