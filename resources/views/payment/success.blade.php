@@ -25,7 +25,7 @@
         
         .success-card {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 3rem 1rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
@@ -90,11 +90,6 @@
                         <div class="text-center my-3">
                             <img src="{{ $content }}" alt="QR Code" class="img-fluid" style="max-width: 300px;" id="qrCodeImage">
                         </div>
-                        <div class="text-center mb-3">
-                            <a href="{{ $content }}" download="qr-code-{{ $transactionId ?? 'payment' }}.png" class="btn btn-primary btn-sm">
-                                <i class="fas fa-download me-2"></i>Unduh QR Code
-                            </a>
-                        </div>
 
                         <p class="mb-0 small">Pindai kode QR ini menggunakan aplikasi mobile banking Anda.</p>
                     </div>
@@ -116,7 +111,7 @@
                 <div class="row mt-4">
                     <div class="col-12">
                         <p class="text-muted small mb-3">Setelah dirasa melakukan pembayaran, tekan tombol cek status pembayaran</p>
-                        <a href="{{ route('jinah.payment.status', ['transactionId' => $transactionId ?? 0]) }}" class="btn btn-primary btn-lg">
+                        <a href="{{ route('jinah.payment.status', ['transactionId' => $transactionId ?? 0]) }}" class="btn btn-primary btn-lg" id="checkStatusBtn" onclick="showLoading(this, event)">
                             <i class="fas fa-sync-alt me-2"></i>Cek Status Pembayaran
                         </a>
                     </div>
@@ -146,6 +141,13 @@
             }).catch(function(err) {
                 console.error('Gagal menyalin: ', err);
             });
+        }
+
+        function showLoading(button, event) {
+            // Disable button and show loading state
+            button.classList.add('disabled');
+            button.style.pointerEvents = 'none';
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Mengecek status...';
         }
     </script>
     
