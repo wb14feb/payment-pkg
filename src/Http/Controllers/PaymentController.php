@@ -20,6 +20,18 @@ class PaymentController extends Controller
      */
     private function getPaymentMethods(): array
     {
+        return collect(config("jinah.services.jinah.channels"))
+            ->filter(function ($channel) {
+                return $channel['enabled'] ?? false;
+            })
+            ->map(function ($channel, $key) {
+                return [
+                    'id' => $key,
+                    'name' => $channel['name'],
+                    'icon_url' => $channel['icon_url'] ?? 'credit-card',
+                    'fee' => $channel['fee'] ?? 0,
+                ];
+            })->values()->toArray();
         return [
             // ['id' => 'cc', 'name' => 'Credit Card', 'icon' => 'credit-card', 'fee' => 0],
             ['id' => 'qris', 'name' => 'QRIS', 'icon' => 'qrcode', 'fee' => 0],

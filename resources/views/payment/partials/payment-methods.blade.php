@@ -3,14 +3,16 @@
         <div class="payment-method-card" data-method="{{ $method['id'] }}">
             <div class="d-flex align-items-center">
                 <div class="me-3">
-                    <i class="fas fa-{{ $method['icon'] }} fa-lg text-primary"></i>
+                    <img src="{{ $method['icon_url'] }}" 
+                         alt="{{ $method['name'] }} Logo" 
+                         style="width: 85px; height: 25px; object-fit: cover;">
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="mb-0">
                         {{ $method['name'] }}
                         @if(isset($method['fee']))
                             <small class="text-muted">
-                                @if($method['fee'] == 0)
+                                @if($method['fee'] === 0)
                                     (Gratis)
                                 @else
                                     (Biaya: IDR {{ $method['fee'] }})

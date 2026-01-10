@@ -51,7 +51,7 @@
                     </div>
                 @endif
                 
-                <h1 class="h2 text-success mb-4">Pembayaran Dimulai!</h1>
+                <h1 class="h2 text-success mb-4">Harap Melakukan Pembayaran!</h1>
                 
                 <p class="lead text-muted mb-4">
                     Silakan selesaikan pembayaran Anda menggunakan detail di bawah ini.
@@ -65,8 +65,8 @@
                 
                 @if($amount)
                     <div class="mb-4">
-                        <span class="h4 text-primary">{{ number_format($amount, 2) }}</span>
-                        <small class="text-muted">Jumlah yang harus dibayar</small>
+                        <small class="text-muted">Jumlah yang harus dibayar</small><br/>
+                        <span class="h1 text-primary">{{ number_format($amount, 0, ',', '.') }}</span>
                     </div>
                 @endif
 
@@ -86,11 +86,10 @@
                     <div class="alert alert-warning mb-4">
                         <h5 class="alert-heading"><i class="fas fa-qrcode me-2"></i>Pindai Kode QR</h5>
                         <hr>
-                        <p class="text-center"><strong>CV Abinathayana</strong></p>
+                        <p class="text-center"><strong>LAIT - CV Abinathayana</strong></p>
                         <div class="text-center my-3">
                             <img src="{{ $content }}" alt="QR Code" class="img-fluid" style="max-width: 300px;" id="qrCodeImage">
                         </div>
-
                         <p class="mb-0 small">Pindai kode QR ini menggunakan aplikasi mobile banking Anda.</p>
                     </div>
                 @elseif($contentType === 'cc' && $content)
