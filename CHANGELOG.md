@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## more UX - 2025-12-24
+
+more UX friendlier
+
 ## fix finpay - 2025-12-23
 
 fix finpay
