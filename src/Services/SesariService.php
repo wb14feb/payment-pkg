@@ -95,7 +95,7 @@ class SesariService implements PaymentServiceContract
         }
         if ($request->getAdminFeeValue() > 0) {
             $detail['items'][] = [
-                'name' => $request->getAdminFeeName(),
+                'name' => 'Admin Fee',
                 'quantity' => 1,
                 'price' => intval($request->getAdminFeeValue()),
                 'image_url' => null,

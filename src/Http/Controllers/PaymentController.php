@@ -145,6 +145,9 @@ class PaymentController extends Controller
                 description: 'Pembayaran untuk item yang dipilih',
                 items: $paymentItems,
                 discount: $orderPayload['order']['discount'] ?? 0,
+                adminFee: $orderPayload['order']['adminFee'] ?? 0,
+                adminFeePercentage: $orderPayload['order']['adminFeePercentage'] ?? 0,
+                adminFeeCalculator: $orderPayload['order']['adminFeeCalculator'] ?? null,
             );
 
             // Process payment through Jinah
