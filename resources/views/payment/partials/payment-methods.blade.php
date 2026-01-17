@@ -12,7 +12,9 @@
                         {{ $method['name'] }}
                         @if(isset($method['fee']))
                             <small class="text-muted">
-                                @if($method['fee'] === 0)
+                                @if($method['id'] === 'other')
+                                    (Biaya Bervariasi)
+                                @elseif($method['fee'] === 0)
                                     (Gratis)
                                 @else
                                     (Biaya: IDR {{ $method['fee'] }})

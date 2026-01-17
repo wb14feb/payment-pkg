@@ -6,6 +6,8 @@ use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\Exceptions\JinahException;
 use AnyTech\Jinah\Services\FinPayService;
 use AnyTech\Jinah\Services\JinahService;
+use AnyTech\Jinah\Services\SesariService;
+use App\Services\SesariPaymentService;
 use Illuminate\Http\Request;
 use Log;
 
@@ -27,6 +29,7 @@ class PaymentServiceFactory
 
         return match ($serviceName) {
             'finpay' => $this->createFinPayService(),
+            'sesari' => $this->createSesariService(),
             default => $this->createJinahService(),
         };
     }
@@ -41,6 +44,17 @@ class PaymentServiceFactory
         }
 
         $service = new FinPayService($this->config);
+
+        return $service;
+    }
+
+    private function createSesariService(): SesariService
+    {
+        if (!isset($this->config['services']['sesari'])) {
+            throw new JinahException("Sesari service is not configured");
+        }
+
+        $service = new SesariService($this->config);
 
         return $service;
     }

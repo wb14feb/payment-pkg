@@ -58,7 +58,15 @@ return [
                     "fee" => "2.5%",
                     "service" => "finpay",
                     "icon_url" => env('JINAH_CHANNEL_CC_ICON_URL', "https://c.ekstatic.net/ecl/logos/payment-options/master-visa-logo.svg"),
-                ]
+                ],
+                "other" => [
+                    "category" => "other",
+                    "name" => "Metode Lainnya",
+                    "enabled" => env('JINAH_CHANNEL_OTHER_ENABLED', true),
+                    "fee" => 0,
+                    "service" => env('JINAH_CHANNEL_OTHER_SERVICE', 'sesari'),
+                    "icon_url" => env('JINAH_CHANNEL_OTHER_ICON_URL', "https://cdn-icons-png.flaticon.com/512/5895/5895032.png"),
+                ],
             ]
         ],
         "finpay" => [
@@ -71,6 +79,18 @@ return [
             "client_secret" => env('JINAH_FINPAY_CLIENT_SECRET', env('FINPAY_CLIENT_SECRET')),
             "connect_timeout" => env('JINAH_FINPAY_CONNECT_TIMEOUT', 10),
             "verify_ssl" => env('JINAH_FINPAY_VERIFY_SSL', true),
+        ],
+        "sesari" => [
+            "driver" => "sesari",
+            "name" => "Sesari",
+            "description" => "Sesari Payment Gateway",
+            "development_url" => env('JINAH_SESARI_DEVELOPMENT_URL', 'https://api.explorind.app'),
+            "production_url" => env('JINAH_SESARI_PRODUCTION_URL', 'https://api.explorind.app'),
+            "service_uuid" => env('JINAH_SESARI_SERVICE_UUID') ?? env('SESARI_API_SERVICE_UUID'),
+            "service_key" => env('JINAH_SESARI_SERVICE_KEY') ?? env('SESARI_API_SERVICE_KEY'),
+            "service_va" => env('JINAH_SESARI_SERVICE_VA') ?? env('SESARI_API_SERVICE_VA') ?? '',
+            "connect_timeout" => env('JINAH_SESARI_CONNECT_TIMEOUT', 10),
+            "verify_ssl" => env('JINAH_SESARI_VERIFY_SSL', true),
         ],
     ],
     

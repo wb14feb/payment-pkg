@@ -12,6 +12,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+
 
 class PaymentController extends Controller
 {
@@ -153,6 +155,7 @@ class PaymentController extends Controller
                 'amount' => $baseAmount,
                 'taxedAmount' => $totalAmount,
                 'payment_method_name' => $selectedMethod['name'] ?? null,
+                'redirect_url' => $orderPayload['url']['successUrl'] ?? null,
             ], now()->addHours(3));
 
             if ($paymentResponse->success && $paymentResponse->content != null) {
@@ -199,6 +202,18 @@ class PaymentController extends Controller
         $paymentMethodName = $orderDestination['payment_method_name'] ?? null;
         
         return view('jinah::payment.success', compact('transactionId', 'amount', 'content', 'contentType', 'paymentMethodName'));
+    }
+    
+    public function completed(Request $request, string $transactionId)
+    {
+        $orderDestination = Cache::get('jinah_order_destination_' . $transactionId);
+        if (empty($orderDestination)) {
+            return redirect()->route('jinah.payment.failed', ['transactionId' => $transactionId, 'error' => 'Pesanan sudah kedaluwarsa atau tidak ditemukan.']);
+        }
+
+        $redirectUrl = $orderDestination['redirect_url'] ?? url('/');
+        
+        return view('jinah::payment.completed', compact('transactionId', 'redirectUrl'));
     }
 
     public function failed(Request $request, string $transactionId): View

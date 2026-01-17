@@ -54,6 +54,43 @@ class WebhookController extends Controller
                 $service = $detectedService;
             }
             
+            // Switch to the appropriate service
+            Jinah::switchService($service);
+            // Process the webhook
+            $this->processWebhook($service, $payload);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Webhook processed successfully',
+                'service' => $service,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("{$service} webhook processing failed", [
+                'service' => $service,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Webhook processing failed'
+            ], 500);
+        }
+    }
+
+    public function handleGet(Request $request, string $service): JsonResponse
+    {
+        try {
+            $orderUuid = $request->query('orderUuid');
+            if (empty($orderUuid)) {
+                throw new JinahException("Missing orderUuid parameter");;
+            }
+
+            Jinah::switchService($service);
+            $payload = Jinah::check($orderUuid);
+            
             // Process the webhook
             $this->processWebhook($service, $payload);
 
@@ -103,6 +140,8 @@ class WebhookController extends Controller
             // Create webhook payload DTO
             $payload = WebhookPayload::fromRequest($request);
             
+            // Switch to the appropriate service
+            Jinah::switchService($detectedService);
             // Process the webhook
             $this->processWebhook($detectedService, $payload);
 
@@ -132,9 +171,6 @@ class WebhookController extends Controller
      */
     private function processWebhook(string $service, WebhookPayload $payload): void
     {
-        // Switch to the appropriate service
-        Jinah::switchService($service);
-
         // Dispatch general webhook event
         event(new PaymentWebhookReceived($payload));
 

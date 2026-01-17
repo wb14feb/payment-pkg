@@ -31,6 +31,7 @@ class WebhookPayload
         
         return match ($service) {
             'finpay' => self::fromFinPayRequest($request),
+            'sesari' => self::fromSesariRequest($request),
             'stripe' => self::fromStripeRequest($request),
             'midtrans' => self::fromMidtransRequest($request),
             default => self::fromGenericRequest($service, $request),
@@ -116,6 +117,40 @@ class WebhookPayload
         );
     }
 
+    public static function fromSesariRequest(Request $request): self
+    {
+        $data = $request->all();
+        return static::fromFinpay([
+            ...$data,
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'headers' => $request->headers->all(),
+                'merchant_id' => $data['merchant']['id'] ?? null,
+                'payment_type' => $data['sourceOfFunds']['type'] ?? null,
+                'channel' => $data['result']['payment']['channel'] ?? null,
+                'signature' => $data['signature'] ?? null,
+            ],
+        ]);
+    }
+
+    public static function fromSesari(array $dataTrans) {
+        $data = $dataTrans['transaction'] ?? [];
+        return new self(
+            service: 'ipaymu',
+            eventType: $data['event_type'] ?? 'payment.notification',
+            transactionId: $data['code'] ?? null,
+            merchantOrderId: $data['ref_id'] ?? null,
+            status: self::mapSesariStatus($data['status'] ?? null),
+            amount: isset($data['final_amount']) ? (float) $data['final_amount'] : null,
+            currency: $data['currency'] ?? 'IDR',
+            timestamp: isset($data['updated_at']) ? Carbon::parse($data['updated_at']) : Carbon::now(),
+            rawPayload: $data,
+            metadata: $data['details'] ?? [],
+            paymentMethod: $data['payment_method'] ?? null,
+        );
+    }
+
     /**
      * Map FinPay status to standardized status
      */
@@ -129,6 +164,16 @@ class WebhookPayload
             'CANCELLED' => 'cancelled',
             'EXPIRED' => 'failed',
             default => $status,
+        };
+    }
+
+
+    private static function mapSesariStatus(?string $status): ?string
+    {
+        return match ($status) {
+            'completed' => 'completed',
+            'failed' => 'failed',
+            default => 'pending',
         };
     }
 

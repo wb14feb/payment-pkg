@@ -28,6 +28,11 @@ Route::post('/jinah/webhook/{service}', [WebhookController::class, 'handle'])
     ->where('service', '[a-zA-Z0-9_-]+')
     ->withoutMiddleware(['web', 'csrf']);
 
+Route::get('/jinah/webhook/{service}', [WebhookController::class, 'handleGet'])
+    ->name('jinah.webhook')
+    ->where('service', '[a-zA-Z0-9_-]+')
+    ->withoutMiddleware(['web', 'csrf']);
+
 // Alternative webhook routes with custom prefixes (configurable)
 Route::group(['prefix' => config('jinah.webhook.route_prefix', 'payment-webhook')], function () {
     // Auto-detection route

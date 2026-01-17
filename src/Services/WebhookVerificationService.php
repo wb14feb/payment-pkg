@@ -34,6 +34,7 @@ class WebhookVerificationService
         // Verify service-specific signature
         return match ($service) {
             'finpay' => $this->verifyFinPaySignature($request),
+            'sesari' => true,
             'stripe' => $this->verifyStripeSignature($request),
             'midtrans' => $this->verifyMidtransSignature($request),
             default => $this->verifyGenericSignature($service, $request),

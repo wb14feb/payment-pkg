@@ -16,4 +16,6 @@ Route::group(['prefix' => 'jinah/payment', 'as' => 'jinah.payment.', 'middleware
     Route::get('/failed/{transactionId}', [PaymentController::class, 'failed'])->name('failed');
 
     Route::get('/status/{transactionId}', [PaymentController::class, 'status'])->name('status');
+
+    Route::get('/completed/{transactionId}', [PaymentController::class, 'completed'])->name('completed');
 });
