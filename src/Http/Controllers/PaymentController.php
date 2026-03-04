@@ -115,10 +115,19 @@ class PaymentController extends Controller
             // Get payment method fee
             $paymentMethods = $this->getPaymentMethods();
             $selectedMethod = collect($paymentMethods)->firstWhere('id', $request->input('payment_method'));
-            $fee = $selectedMethod['fee'] ?? 0;
+            $feeValue = $selectedMethod['fee'] ?? 0;
             
             // Calculate total amount with fee
             $baseAmount = $orderPayload['order']['amount'] ?? 0;
+            
+            // Check if fee is percentage (ends with %)
+            if (is_string($feeValue) && str_ends_with($feeValue, '%')) {
+                $feePercentage = (float) str_replace('%', '', $feeValue);
+                $fee = ($baseAmount * $feePercentage) / 100;
+            } else {
+                $fee = (float) $feeValue;
+            }
+            
             $totalAmount = $baseAmount + $fee;
             
             // Create payment items
