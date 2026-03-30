@@ -119,6 +119,7 @@ class PaymentController extends Controller
             
             // Calculate total amount with fee
             $baseAmount = $orderPayload['order']['amount'] ?? 0;
+            $adminFee = $orderPayload['order']['adminFee'] ?? 0;
             
             // Check if fee is percentage (ends with %)
             if (is_string($feeValue) && str_ends_with($feeValue, '%')) {
@@ -128,7 +129,7 @@ class PaymentController extends Controller
                 $fee = (float) $feeValue;
             }
             
-            $totalAmount = $baseAmount + $fee;
+            $totalAmount = $baseAmount + $fee + $adminFee;
             
             // Create payment items
             $paymentItems = collect($orderPayload['order']['item'] ?? [])->map(function ($item) {

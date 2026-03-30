@@ -114,7 +114,6 @@ class JinahService implements PaymentServiceContract
         if ($request->getAdminFeeValue() > 0) {
             $payload['order'] = [
                 ...$payload['order'],
-                'amount' => $amount + intval($request->getAdminFeeValue()),
                 'adminFee' => intval($request->getAdminFeeValue()),
             ];
         }
