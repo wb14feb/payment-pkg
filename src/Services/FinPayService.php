@@ -174,7 +174,7 @@ class FinPayService implements PaymentServiceContract
             ])))->render($content);
         }  else if (str_starts_with($type, 'cc')) {
             $contentType = PaymentResponse::CONTENT_TYPE_CC;
-            $content = $response['redirecturl'] ?? null;
+            // $content = $response['redirecturl'] ?? null;
         }
         return new PaymentResponse(
             success: str_starts_with($response['responseCode'], '2'),

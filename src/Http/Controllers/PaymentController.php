@@ -181,7 +181,7 @@ class PaymentController extends Controller
                         'amount' => $paymentRequest->amount,
                     ]);
             } else if ($paymentResponse->success) {
-                return redirect($paymentResponse->redirectUrl ?? '');
+                return redirect($paymentResponse->redirectUrl ?? env('APP_URL'));
             }
 
             return redirect()->route('jinah.payment.failed', ['transactionId' => $transactionId]);
