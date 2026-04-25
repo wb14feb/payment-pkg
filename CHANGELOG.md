@@ -2,6 +2,16 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## 1.5.4 - 2026-04-25
+
+Fix cc
+
+**Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.5.3...1.5.4
+
+## Fix adminFee apply double - 2026-03-30
+
+**Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.5.2...1.5.3
+
 ## more UX - 2025-12-24
 
 more UX friendlier
