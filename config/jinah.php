@@ -16,7 +16,7 @@ return [
                     "name" => "QRIS",
                     "enabled" => env('JINAH_CHANNEL_QRIS_ENABLED', true),
                     "fee" => 0,
-                    "service" => "finpay",
+                    "service" => "doku",
                     "icon_url" => env('JINAH_CHANNEL_QRIS_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg"),
                 ],
                 "vabca" => [
@@ -24,7 +24,7 @@ return [
                     "name" => "Virtual Account BCA",
                     "enabled" => env('JINAH_CHANNEL_VABCA_ENABLED', true),
                     "fee" => 3500,
-                    "service" => "finpay",
+                    "service" => "doku",
                     "icon_url" => env('JINAH_CHANNEL_VABCA_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg"),
                 ],
                 "vabri" => [
@@ -32,7 +32,7 @@ return [
                     "name" => "Virtual Account BRI",
                     "enabled" => env('JINAH_CHANNEL_VABRI_ENABLED', true),
                     "fee" => 3500,
-                    "service" => "finpay",
+                    "service" => "doku",
                     "icon_url" => env('JINAH_CHANNEL_VABRI_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg"),
                 ],
                 "vamandiri" => [
@@ -40,7 +40,7 @@ return [
                     "name" => "Virtual Account Mandiri",
                     "enabled" => env('JINAH_CHANNEL_VAMANDIRI_ENABLED', true),
                     "fee" => 3500,
-                    "service" => "finpay",
+                    "service" => "doku",
                     "icon_url" => env('JINAH_CHANNEL_VAMANDIRI_ICON_URL', "https://upload.wikimedia.org/wikipedia/id/f/fa/Bank_Mandiri_logo.svg"),
                 ],
                 "vabni" => [
@@ -48,7 +48,7 @@ return [
                     "name" => "Virtual Account BNI",
                     "enabled" => env('JINAH_CHANNEL_VABNI_ENABLED', true),
                     "fee" => 3500,
-                    "service" => "finpay",
+                    "service" => "doku",
                     "icon_url" => env('JINAH_CHANNEL_VABNI_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg"),
                 ],
                 "cc" => [
@@ -56,7 +56,7 @@ return [
                     "name" => "Credit Card",
                     "enabled" => env('JINAH_CHANNEL_CC_ENABLED', true),
                     "fee" => 0,
-                    "service" => "finpay",
+                    "service" => "doku",
                     "icon_url" => env('JINAH_CHANNEL_CC_ICON_URL', "https://c.ekstatic.net/ecl/logos/payment-options/master-visa-logo.svg"),
                 ],
                 "other" => [
@@ -79,6 +79,17 @@ return [
             "client_secret" => env('JINAH_FINPAY_CLIENT_SECRET', env('FINPAY_CLIENT_SECRET')),
             "connect_timeout" => env('JINAH_FINPAY_CONNECT_TIMEOUT', 10),
             "verify_ssl" => env('JINAH_FINPAY_VERIFY_SSL', true),
+        ],
+        "doku" => [
+            "driver" => "doku",
+            "name" => "DOKU",
+            "description" => "DOKU Direct API / Checkout Gateway",
+            "development_url" => env('JINAH_DOKU_SANDBOX_URL', 'https://api-sandbox.doku.com'),
+            "production_url" => env('JINAH_DOKU_PRODUCTION_URL', 'https://api.doku.com'),
+            "client_id" => env('JINAH_DOKU_CLIENT_ID', env('DOKU_CLIENT_ID')),
+            "secret_key" => env('JINAH_DOKU_SECRET_KEY', env('DOKU_SECRET_KEY')),
+            "connect_timeout" => env('JINAH_DOKU_CONNECT_TIMEOUT', 10),
+            "verify_ssl" => env('JINAH_DOKU_VERIFY_SSL', true),
         ],
         "sesari" => [
             "driver" => "sesari",
@@ -104,6 +115,12 @@ return [
             "secret" => env('JINAH_FINPAY_CLIENT_SECRET', env('FINPAY_CLIENT_SECRET')),
             "verify_signature" => env('JINAH_FINPAY_VERIFY_SIGNATURE', true),
             "ip_whitelist" => env('JINAH_FINPAY_WEBHOOK_IPS'),
+        ],
+        "doku" => [
+            "secret" => env('JINAH_DOKU_SECRET_KEY', env('DOKU_SECRET_KEY')),
+            "client_id" => env('JINAH_DOKU_CLIENT_ID', env('DOKU_CLIENT_ID')),
+            "verify_signature" => env('JINAH_DOKU_VERIFY_SIGNATURE', true),
+            "ip_whitelist" => env('JINAH_DOKU_WEBHOOK_IPS'),
         ],
         "stripe" => [
             "endpoint_secret" => env('JINAH_STRIPE_WEBHOOK_SECRET'),

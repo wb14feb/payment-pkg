@@ -4,6 +4,7 @@ namespace AnyTech\Jinah\Factories;
 
 use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\Exceptions\JinahException;
+use AnyTech\Jinah\Services\DokuService;
 use AnyTech\Jinah\Services\FinPayService;
 use AnyTech\Jinah\Services\JinahService;
 use AnyTech\Jinah\Services\SesariService;
@@ -28,10 +29,20 @@ class PaymentServiceFactory
         $serviceName ??= $this->config['default_service'] ?? 'jinah';
 
         return match ($serviceName) {
+            'doku' => $this->createDokuService(),
             'finpay' => $this->createFinPayService(),
             'sesari' => $this->createSesariService(),
             default => $this->createJinahService(),
         };
+    }
+
+    private function createDokuService(): DokuService
+    {
+        if (!isset($this->config['services']['doku'])) {
+            throw new JinahException("DOKU service is not configured");
+        }
+
+        return new DokuService($this->config);
     }
     
     /**

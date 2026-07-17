@@ -33,6 +33,7 @@ class WebhookVerificationService
 
         // Verify service-specific signature
         return match ($service) {
+            'doku' => $this->verifyDokuSignature($request),
             'finpay' => $this->verifyFinPaySignature($request),
             'sesari' => true,
             'stripe' => $this->verifyStripeSignature($request),
@@ -175,6 +176,56 @@ class WebhookVerificationService
 
         return true; //temporary bypass
         // return $isValid;
+    }
+
+    private function verifyDokuSignature(Request $request): bool
+    {
+        $secret = $this->config['webhook']['doku']['secret'] ?? null;
+        $expectedClientId = $this->config['webhook']['doku']['client_id'] ?? null;
+
+        if (empty($secret) || empty($expectedClientId)) {
+            Log::warning('DOKU webhook credentials not configured');
+            return false;
+        }
+
+        $clientId = $request->header('Client-Id');
+        $requestId = $request->header('Request-Id');
+        $requestTimestamp = $request->header('Request-Timestamp');
+        $receivedSignature = $request->header('Signature');
+
+        if (empty($clientId) || empty($requestId) || empty($requestTimestamp) || empty($receivedSignature)) {
+            Log::warning('Incomplete DOKU webhook signature headers');
+            return false;
+        }
+
+        if ($clientId !== $expectedClientId) {
+            Log::warning('DOKU webhook client id mismatch', ['received' => $clientId]);
+            return false;
+        }
+
+        $rawPayload = $request->getContent();
+        $signatureParts = [
+            'Client-Id:' . $clientId,
+            'Request-Id:' . $requestId,
+            'Request-Timestamp:' . $requestTimestamp,
+            'Request-Target:' . $request->getPathInfo(),
+        ];
+
+        if ($rawPayload !== '') {
+            $signatureParts[] = 'Digest:' . base64_encode(hash('sha256', $rawPayload, true));
+        }
+
+        $expectedSignature = 'HMACSHA256=' . base64_encode(hash_hmac('sha256', implode("\n", $signatureParts), $secret, true));
+        $isValid = hash_equals($expectedSignature, $receivedSignature);
+
+        if (!$isValid) {
+            Log::warning('DOKU signature verification failed', [
+                'request_id' => $requestId,
+                'path' => $request->getPathInfo(),
+            ]);
+        }
+
+        return $isValid;
     }
 
     /**

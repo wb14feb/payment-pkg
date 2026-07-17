@@ -30,6 +30,7 @@ class WebhookPayload
         $service = $hintService ?? self::detectServiceFromRequest($request);
         
         return match ($service) {
+            'doku' => self::fromDokuRequest($request),
             'finpay' => self::fromFinPayRequest($request),
             'sesari' => self::fromSesariRequest($request),
             'stripe' => self::fromStripeRequest($request),
@@ -56,6 +57,10 @@ class WebhookPayload
             return 'finpay';
         }
 
+        if ($request->hasHeader('signature') && isset($request->all()['order']['invoice_number']) && isset($request->all()['transaction']['status'])) {
+            return 'doku';
+        }
+
         Log::warning("Unable to detect service from headers.", ['headers' => $request->headers->all()]);
 
         // Check payload structure for service-specific fields
@@ -75,6 +80,10 @@ class WebhookPayload
         if (isset($data['transaction_id']) && isset($data['merchant_order_id']) && 
             (isset($data['event_type']) || isset($data['transaction_status']))) {
             return 'finpay';
+        }
+
+        if (isset($data['order']['invoice_number']) && isset($data['transaction']['status'])) {
+            return 'doku';
         }
 
         // Default to generic if no specific pattern detected
@@ -151,6 +160,45 @@ class WebhookPayload
         );
     }
 
+    public static function fromDokuRequest(Request $request): self
+    {
+        $data = $request->all();
+
+        return static::fromDoku([
+            ...$data,
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'headers' => $request->headers->all(),
+                'signature' => $request->header('Signature'),
+                'client_id' => $request->header('Client-Id'),
+                'request_id' => $request->header('Request-Id'),
+            ],
+        ]);
+    }
+
+    public static function fromDoku(array $data): self
+    {
+        $transaction = $data['transaction'] ?? ($data['response']['transaction'] ?? []);
+        $order = $data['order'] ?? ($data['response']['order'] ?? []);
+        $payment = $data['payment'] ?? ($data['response']['payment'] ?? []);
+        $channelId = $data['channel']['id'] ?? null;
+
+        return new self(
+            service: 'doku',
+            eventType: $data['event_type'] ?? 'payment.notification',
+            transactionId: $transaction['original_request_id'] ?? $payment['token_id'] ?? $order['invoice_number'] ?? null,
+            merchantOrderId: $order['invoice_number'] ?? null,
+            status: self::mapDokuStatus($transaction['status'] ?? null),
+            amount: isset($order['amount']) ? (float) $order['amount'] : null,
+            currency: $order['currency'] ?? 'IDR',
+            timestamp: isset($transaction['date']) ? Carbon::parse($transaction['date']) : Carbon::now(),
+            rawPayload: $data,
+            metadata: $data['metadata'] ?? [],
+            paymentMethod: $channelId,
+        );
+    }
+
     /**
      * Map FinPay status to standardized status
      */
@@ -174,6 +222,17 @@ class WebhookPayload
             'completed' => 'completed',
             'failed' => 'failed',
             default => 'pending',
+        };
+    }
+
+    private static function mapDokuStatus(?string $status): ?string
+    {
+        return match ($status) {
+            'SUCCESS' => 'completed',
+            'PENDING', 'REDIRECT', 'TIMEOUT' => 'pending',
+            'FAILED', 'EXPIRED', 'VOIDED' => 'failed',
+            'REFUNDED', 'PARTIAL_REFUNDED' => 'refunded',
+            default => $status ? strtolower($status) : null,
         };
     }
 

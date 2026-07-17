@@ -1,6 +1,6 @@
 # Jinah Payment Package
 
-A Laravel package that provides a proxy interface to multiple payment gateways with a unified API. Currently supports FinPay with the ability to easily add more payment services.
+A Laravel package that provides a proxy interface to multiple payment gateways with a unified API. Currently supports FinPay, DOKU, and Sesari.
 
 ## Installation
 
@@ -22,12 +22,18 @@ Add the following environment variables to your `.env` file:
 
 ```env
 # Default service configuration
-JINAH_DEFAULT_SERVICE=finpay
+JINAH_DEFAULT_SERVICE=doku
 JINAH_ENVIRONMENT=development
 
 # FinPay Configuration
 JINAH_FINPAY_CLIENT_ID=your_client_id
 JINAH_FINPAY_CLIENT_SECRET=your_client_secret
+
+# DOKU Configuration
+JINAH_DOKU_CLIENT_ID=your_client_id
+JINAH_DOKU_SECRET_KEY=your_secret_key
+JINAH_DOKU_SANDBOX_URL=https://api-sandbox.doku.com
+JINAH_DOKU_PRODUCTION_URL=https://api.doku.com
 
 # URLs (optional - defaults provided)
 JINAH_FINPAY_SANDBOX_URL=https://devo.finnet.co.id
@@ -51,6 +57,8 @@ The package uses a contract-based architecture that supports multiple payment se
 ### Available Payment Services
 
 - **FinPay**: Fully implemented FinPay payment gateway integration
+- **DOKU**: DOKU Checkout / Direct API integration with signed requests and status checks
+- **Sesari**: Implemented Sesari payment gateway integration
 - **Stripe, Midtrans**: Example configurations provided for future implementation
 
 ### Service Management
@@ -59,7 +67,7 @@ The package uses a contract-based architecture that supports multiple payment se
 use AnyTech\Jinah\Facades\Jinah;
 
 // Get current service
-$currentService = Jinah::getCurrentServiceName(); // Returns: 'finpay'
+$currentService = Jinah::getCurrentServiceName(); // Returns: 'doku'
 
 // List available services
 $services = Jinah::getAvailableServices();
@@ -75,11 +83,11 @@ Returns:
 */
 
 // Switch to a different service
-Jinah::switchService('finpay');
+Jinah::switchService('doku');
 
 // Check if a service is available
 $factory = Jinah::getServiceFactory();
-$isAvailable = $factory->isServiceAvailable('finpay');
+$isAvailable = $factory->isServiceAvailable('doku');
 ```
 
 ## Usage
@@ -116,11 +124,11 @@ if ($response->isSuccessful()) {
 use AnyTech\Jinah\Facades\Jinah;
 
 // Use a specific service for this operation
-$response = Jinah::switchService('finpay')
+$response = Jinah::switchService('doku')
     ->charge('ORDER-123', 50000, 'IDR');
 
 // Or create a new instance with a specific service
-$jinah = new \AnyTech\Jinah\Jinah(config('jinah'), 'finpay');
+$jinah = new \AnyTech\Jinah\Jinah(config('jinah'), 'doku');
 $response = $jinah->charge('ORDER-123', 50000);
 ```
 
@@ -189,11 +197,11 @@ use AnyTech\Jinah\Factories\PaymentServiceFactory;
 $factory = new PaymentServiceFactory(config('jinah'));
 
 // Create a specific payment service
-$finpayService = $factory->create('finpay');
+$dokuService = $factory->create('doku');
 
 // Use the service directly
 $request = new PaymentRequest(/* ... */);
-$response = $finpayService->charge($request);
+$response = $dokuService->charge($request);
 ```
 
 ## Available Methods
