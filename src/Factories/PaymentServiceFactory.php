@@ -4,7 +4,7 @@ namespace AnyTech\Jinah\Factories;
 
 use AnyTech\Jinah\Contracts\PaymentServiceContract;
 use AnyTech\Jinah\Exceptions\JinahException;
-use AnyTech\Jinah\Services\DokuService;
+use AnyTech\Jinah\Services\DokuCheckoutService;
 use AnyTech\Jinah\Services\FinPayService;
 use AnyTech\Jinah\Services\JinahService;
 use AnyTech\Jinah\Services\SesariService;
@@ -36,13 +36,13 @@ class PaymentServiceFactory
         };
     }
 
-    private function createDokuService(): DokuService
+    private function createDokuService(): DokuCheckoutService
     {
         if (!isset($this->config['services']['doku'])) {
             throw new JinahException("DOKU service is not configured");
         }
 
-        return new DokuService($this->config);
+        return new DokuCheckoutService($this->config);
     }
     
     /**

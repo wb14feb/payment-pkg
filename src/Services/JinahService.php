@@ -15,20 +15,9 @@ use Illuminate\Support\Facades\Cache;
 class JinahService implements PaymentServiceContract
 {
     private array $config;
-    private string $baseUrl;
-    private ?string $accessToken = null;
-    private string $clientSecret;
-    private string $clientId;
-
     public function __construct(array $config)
     {
         $this->config = $config;
-        $this->baseUrl = $config['environment'] === 'production'
-            ? $config['services']['finpay']['production_url']
-            : $config['services']['finpay']['development_url'];
-
-        $this->clientId = $config['services']['finpay']['client_id'];
-        $this->clientSecret = $config['services']['finpay']['client_secret'];
     }
 
     public function getServiceName(): string
@@ -118,36 +107,6 @@ class JinahService implements PaymentServiceContract
             ];
         }
         return $payload;
-    }
-
-    private function sendSignedRequest(string $endpoint, array $body, string $method = 'POST'): array
-    {
-        $baseUrl = $this->baseUrl;
-        $clientSecret = $this->clientSecret;
-        $clientId = $this->clientId;
-
-        $credentials = "{$clientId}:{$clientSecret}";
-        $authorization = 'Basic ' . base64_encode($credentials);
-        try {
-            $httpClient = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => $authorization,
-            ])->retry(3, function (int $attempt, Exception $exception) {
-                return $attempt * 1000;
-            });
-            if ($method === 'GET') {
-                if (!empty($body)) {
-                    $endpoint .= '?' . http_build_query($body);
-                }
-                return $httpClient->get($baseUrl . $endpoint)->throw()->json();
-            } else {
-                return $httpClient->post($baseUrl . $endpoint, $body)->throw()->json();
-            }
-        } catch (\Illuminate\Http\Client\RequestException $e) {
-            Log::error($e->getMessage());
-            $responseBody = $e->response ? $e->response->body() : null;
-            return $responseBody ? json_decode($responseBody, true) : [];
-        }
     }
 
     public function initiateChannel(PaymentRequest $request, $type): PaymentResponse
