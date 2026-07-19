@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## 1.6.0 feat Doku - 2026-07-19
+
+Add Doku implementation
+
 ## Fix CC - 2026-04-25
 
 **Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.5.3...1.5.5
