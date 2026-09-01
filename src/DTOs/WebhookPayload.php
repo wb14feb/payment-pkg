@@ -31,6 +31,7 @@ class WebhookPayload
         
         return match ($service) {
             'doku' => self::fromDokuRequest($request),
+            'converso' => self::fromConversoRequest($request),
             'finpay' => self::fromFinPayRequest($request),
             'sesari' => self::fromSesariRequest($request),
             'stripe' => self::fromStripeRequest($request),
@@ -199,6 +200,40 @@ class WebhookPayload
         );
     }
 
+    public static function fromConversoRequest(Request $request): self
+    {
+        $data = $request->all();
+
+        return static::fromConverso([
+            ...$data,
+            'metadata' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'headers' => $request->headers->all(),
+                'signature' => $request->header('Signature'),
+                'client_id' => $request->header('Client-Id'),
+                'request_id' => $request->header('Request-Id'),
+            ],
+        ]);
+    }
+
+    public static function fromConverso(array $data): self
+    {
+        return new self(
+            service: 'converso',
+            eventType: $data['event_type'] ?? 'payment.notification',
+            transactionId: $data['id'],
+            merchantOrderId: $data['external_id'] ?? null,
+            status: self::mapConversoStatus($data['status'] ?? null),
+            amount: isset($data['amount']) ? (float) $data['amount'] : null,
+            currency: $data['currency'] ?? 'IDR',
+            timestamp: isset($data['created_at']) ? Carbon::parse($data['created_at']) : Carbon::now(),
+            rawPayload: $data,
+            metadata: $data['metadata'] ?? [],
+            paymentMethod: isset($data['channel'], $data['method']) ? $data['channel'] . "-" . $data['method'] : null,
+        );
+    }
+
     /**
      * Map FinPay status to standardized status
      */
@@ -232,6 +267,16 @@ class WebhookPayload
             'PENDING', 'REDIRECT', 'TIMEOUT' => 'pending',
             'FAILED', 'EXPIRED', 'VOIDED' => 'failed',
             'REFUNDED', 'PARTIAL_REFUNDED' => 'refunded',
+            default => $status ? strtolower($status) : null,
+        };
+    }
+
+    private static function mapConversoStatus(?string $status): ?string
+    {
+        return match ($status) {
+            'PAID', 'SETTLED', 'REFUNDED' => 'completed',
+            'PENDING' => 'pending',
+            'EXPIRED', 'FAILED', 'CANCELLED' => 'failed',
             default => $status ? strtolower($status) : null,
         };
     }

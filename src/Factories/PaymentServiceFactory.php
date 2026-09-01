@@ -8,6 +8,7 @@ use AnyTech\Jinah\Services\DokuCheckoutService;
 use AnyTech\Jinah\Services\FinPayService;
 use AnyTech\Jinah\Services\JinahService;
 use AnyTech\Jinah\Services\SesariService;
+use AnyTech\Jinah\Services\ConversoService;
 use App\Services\SesariPaymentService;
 use Illuminate\Http\Request;
 use Log;
@@ -32,6 +33,7 @@ class PaymentServiceFactory
             'doku' => $this->createDokuService(),
             'finpay' => $this->createFinPayService(),
             'sesari' => $this->createSesariService(),
+            'converso' => $this->createConversoService(),
             default => $this->createJinahService(),
         };
     }
@@ -77,6 +79,17 @@ class PaymentServiceFactory
         }
 
         $service = new JinahService($this->config);
+
+        return $service;
+    }
+
+    private function createConversoService(): ConversoService
+    {
+        if (!isset($this->config['services']['converso'])) {
+            throw new JinahException("Converso service is not configured");
+        }
+
+        $service = new ConversoService($this->config);
 
         return $service;
     }
