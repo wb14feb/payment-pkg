@@ -38,6 +38,7 @@ class WebhookVerificationService
             'sesari' => true,
             'stripe' => $this->verifyStripeSignature($request),
             'midtrans' => $this->verifyMidtransSignature($request),
+            'converso' => $this->verifyConversoSignature($request),
             default => $this->verifyGenericSignature($service, $request),
         };
     }
@@ -223,6 +224,71 @@ class WebhookVerificationService
                 'request_id' => $requestId,
                 'path' => $request->getPathInfo(),
             ]);
+        }
+
+        return $isValid;
+    }
+
+    /**
+     * Verify Converso webhook signature
+     */
+    private function verifyConversoSignature(Request $request): bool
+    {
+        /* 
+         POST <url-anda>
+            X-Converso-Event: payment.paid
+            X-Converso-Signature: t=1751880000,v1=<hmac_sha256_hex>
+
+            {
+            "id": "<delivery_id>",
+            "event": "payment.paid",
+            "mode": "TEST",
+            "created": "2026-07-07T10:05:00.000Z",
+            "data": { "id": "CPAY-...", "external_id": "EDU-INV-2026-0001",
+                        "status": "PAID", "amount": 350000, "paid_at": "..." }
+            } 
+        */
+
+        $secret = $this->config['webhook']['converso']['secret'] ?? null;
+
+        if (empty($secret)) {
+            Log::warning('Converso webhook secret not configured');
+            return false;
+        }
+
+        $signatureHeader = $request->header('X-Converso-Signature');
+        if (empty($signatureHeader)) {
+            Log::warning('No X-Converso-Signature header found');
+            return false;
+        }
+
+        // Parse signature header
+        $parts = [];
+        foreach (explode(',', $signatureHeader) as $part) {
+            [$key, $value] = explode('=', $part, 2);
+            $parts[trim($key)] = trim($value);
+        }
+
+        if (!isset($parts['t']) || !isset($parts['v1'])) {
+            Log::warning('Invalid Converso signature format');
+            return false;
+        }
+
+        $timestamp = $parts['t'];
+        $signature = $parts['v1'];
+
+        // Check timestamp tolerance (5 minutes)
+        if (abs(time() - $timestamp) > 300) {
+            Log::warning('Converso webhook timestamp too old');
+            return false;
+        }
+
+        $payload = $request->getContent();
+        $expectedSignature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+        $isValid = hash_equals($expectedSignature, $signature);
+
+        if (!$isValid) {
+            Log::warning('Converso signature verification failed');
         }
 
         return $isValid;

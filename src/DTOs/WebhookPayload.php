@@ -147,7 +147,7 @@ class WebhookPayload
     public static function fromSesari(array $dataTrans) {
         $data = $dataTrans['transaction'] ?? [];
         return new self(
-            service: 'ipaymu',
+            service: 'sesari',
             eventType: $data['event_type'] ?? 'payment.notification',
             transactionId: $data['code'] ?? null,
             merchantOrderId: $data['ref_id'] ?? null,
@@ -210,18 +210,18 @@ class WebhookPayload
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'headers' => $request->headers->all(),
-                'signature' => $request->header('Signature'),
-                'client_id' => $request->header('Client-Id'),
-                'request_id' => $request->header('Request-Id'),
+                'signature' => $request->header('X-Converso-Signature'),
+                'event_header' => $request->header('X-Converso-Event'),
             ],
         ]);
     }
 
-    public static function fromConverso(array $data): self
+    public static function fromConverso(array $request): self
     {
+        $data = $request['data'] ?? $request;
         return new self(
             service: 'converso',
-            eventType: $data['event_type'] ?? 'payment.notification',
+            eventType: $request['event'] ?? 'payment.notification',
             transactionId: $data['id'],
             merchantOrderId: $data['external_id'] ?? null,
             status: self::mapConversoStatus($data['status'] ?? null),

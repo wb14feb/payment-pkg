@@ -36,7 +36,7 @@ class SesariService implements PaymentServiceContract
 
     public function getServiceName(): string
     {
-        return 'ipaymu';
+        return 'sesari';
     }
 
     public function initiate(PaymentRequest $request): PaymentResponse
