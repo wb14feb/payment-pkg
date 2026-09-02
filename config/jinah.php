@@ -145,6 +145,9 @@ return [
             "verify_signature" => env('JINAH_MIDTRANS_VERIFY_SIGNATURE', true),
             "ip_whitelist" => env('JINAH_MIDTRANS_WEBHOOK_IPS'),
         ],
+        "converso" => [
+            "secret" => env('JINAH_CONVERSO_SECRET_KEY', env('CONVERSO_SECRET_KEY')),
+        ],
     ],
     
     // Payment configuration
