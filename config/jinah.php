@@ -115,6 +115,7 @@ return [
             "api_key" => env('JINAH_CONVERSO_API_KEY', env('CONVERSO_API_KEY', 'no-key')),
             "connect_timeout" => env('JINAH_CONVERSO_CONNECT_TIMEOUT', 10),
             "verify_ssl" => env('JINAH_CONVERSO_VERIFY_SSL', true),
+            "store_id" => env('JINAH_CONVERSO_STORE_ID', env('CONVERSO_STORE_ID')),
         ],
     ],
     
@@ -147,7 +148,6 @@ return [
         ],
         "converso" => [
             "secret" => env('JINAH_CONVERSO_SECRET_KEY', env('CONVERSO_SECRET_KEY')),
-            "store_id" => env('JINAH_CONVERSO_STORE_ID', env('CONVERSO_STORE_ID')),
         ],
     ],
     
