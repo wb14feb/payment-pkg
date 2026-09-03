@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## Webhook Config Fix - 2026-09-02
+
+**Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.7.1...1.7.2
+
 ## Webhook Fix - 2026-09-02
 
 **Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.7.0...1.7.1
