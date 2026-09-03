@@ -249,6 +249,19 @@ class WebhookVerificationService
             } 
         */
 
+        $transactionPrefix = $this->config['webhook']['transaction_prefix'] ?? '';
+        if (!empty($transactionPrefix)) {
+            $payload = $request->all();
+            $externalId = $payload['data']['external_id'] ?? '';
+            if (!str_starts_with($externalId, $transactionPrefix)) {
+                Log::warning('Converso webhook external_id does not match transaction prefix', [
+                    'external_id' => $externalId,
+                    'expected_prefix' => $transactionPrefix,
+                ]);
+                return false;
+            }
+        }
+
         $secret = $this->config['webhook']['converso']['secret'] ?? null;
 
         if (empty($secret)) {

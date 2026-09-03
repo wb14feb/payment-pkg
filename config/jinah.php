@@ -189,6 +189,7 @@ return [
         "converso" => [
             "secret" => env('JINAH_CONVERSO_SECRET_KEY', env('CONVERSO_SECRET_KEY')),
         ],
+        "transaction_prefix" => env('JINAH_TRANSACTION_PREFIX', ''),
     ],
     
     // Payment configuration

@@ -36,6 +36,11 @@ class WebhookController extends Controller
                     'ip' => $request->ip(),
                     'headers' => $request->headers->all(),
                 ]);
+
+                if ($service == 'converso') {
+                    // Converso requires a 200 OK response even for invalid signatures
+                    return response()->json(['error' => 'Invalid signature'], 203);
+                }
                 
                 return response()->json(['error' => 'Invalid signature'], 401);
             }
