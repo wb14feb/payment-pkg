@@ -124,8 +124,9 @@ class PaymentController extends Controller
             
             // Check if fee is percentage (ends with %)
             if (is_string($feeValue) && str_ends_with($feeValue, '%')) {
-                $feePercentage = (float) str_replace('%', '', $feeValue);
-                $fee = ($baseAmount * $feePercentage) / 100;
+                // $feePercentage = (float) str_replace('%', '', $feeValue);
+                // $fee = ($baseAmount * $feePercentage) / 100;
+                $fee = 0;
             } else {
                 $fee = (float) $feeValue;
             }
@@ -163,6 +164,11 @@ class PaymentController extends Controller
 
             // Process payment through Jinah
             $paymentResponse = $service->initiateChannel($paymentRequest, $request->input('payment_method'));
+            $externalAdminFee = $paymentResponse->externalAdminFee ?? 0;
+            if ($externalAdminFee > 0) {
+                $totalAmount += $externalAdminFee;
+            }
+
             Cache::put('jinah_order_destination_' . $transactionId, [
                 'content_type' => $paymentResponse->contentType,
                 'content' => $paymentResponse->content,

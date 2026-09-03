@@ -27,6 +27,7 @@ class PaymentResponse
         public readonly array $rawResponse = [],
         public readonly ?string $contentType = null,
         public readonly ?string $content = null,
+        public readonly ?float $externalAdminFee = null,
     ) {}
 
     public function toArray(): array
@@ -44,6 +45,7 @@ class PaymentResponse
             'raw_response' => $this->rawResponse,
             'content_type' => $this->contentType,
             'content' => $this->content,
+            'external_admin_fee' => $this->externalAdminFee,
         ];
     }
 
@@ -58,6 +60,7 @@ class PaymentResponse
             currency: $data['currency'] ?? null,
             paymentUrl: $data['payment_url'] ?? null,
             message: $data['message'] ?? null,
+            externalAdminFee: isset($data['external_admin_fee']) ? (float) $data['external_admin_fee'] : null,
             rawResponse: $data
         );
     }

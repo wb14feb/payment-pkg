@@ -135,6 +135,7 @@ class ConversoService implements PaymentServiceContract
         $response = $this->sendSignedRequest('/partner/v1/payments', $payload);
         $contentType = null;
         $content = null;
+        $externalAdminFee = $response['admin_fee'] ?? null;
         if (str_starts_with($type, 'va')) {
             $contentType = PaymentResponse::CONTENT_TYPE_VA;
             $content = $response['instructions']['va_number'] ?? null;
@@ -146,7 +147,7 @@ class ConversoService implements PaymentServiceContract
             ])))->render($content);
         }  else if (str_starts_with($type, 'cc')) {
             $contentType = PaymentResponse::CONTENT_TYPE_CC;
-            // $content = $response['redirecturl'] ?? null;
+            $content = $response['instructions']['redirect_url'] ?? null;
         }
         return new PaymentResponse(
             success: isset($response['error']) && !empty($response['error']) ? false : true,
@@ -156,7 +157,8 @@ class ConversoService implements PaymentServiceContract
             expiryTime: isset($response['expires_at']) ? \Carbon\Carbon::parse($response['expires_at']) : null,
             rawResponse: $response,
             contentType: $contentType,
-            content: $content
+            content: $content,
+            externalAdminFee: $externalAdminFee,
         );
     }
 

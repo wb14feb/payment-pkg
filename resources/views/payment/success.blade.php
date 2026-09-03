@@ -109,7 +109,7 @@
                 
                 <div class="row mt-4">
                     <div class="col-12">
-                        <p class="text-muted small mb-3">Setelah dirasa melakukan pembayaran, tekan tombol cek status pembayaran</p>
+                        <p class="text-muted small mb-3">Setelah anda melakukan pembayaran, tekan tombol cek status pembayaran</p>
                         <a href="{{ route('jinah.payment.status', ['transactionId' => $transactionId ?? 0]) }}" class="btn btn-primary btn-lg" id="checkStatusBtn" onclick="showLoading(this, event)">
                             <i class="fas fa-sync-alt me-2"></i>Cek Status Pembayaran
                         </a>
