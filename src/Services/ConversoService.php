@@ -21,7 +21,7 @@ class ConversoService implements PaymentServiceContract
     private string $clientSecret;
     private string $clientId;
     private string $apiKey;
-    private string $storeId;
+    private ?string $storeId;
 
     public function __construct(array $config)
     {
