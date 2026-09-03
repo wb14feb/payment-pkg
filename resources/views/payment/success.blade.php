@@ -95,6 +95,7 @@
                 @elseif($contentType === 'cc' && $content)
                     <div class="mb-4">
                         <h5><i class="fas fa-credit-card me-2"></i>Selesaikan Pembayaran</h5>
+                        <p class="text-muted small mb-3">Jika sudah membayar namun proses masih berlangsung, tekan tombol cek status pembayaran</p>
                         <hr>
                         <iframe 
                             src="{{ $content }}" 

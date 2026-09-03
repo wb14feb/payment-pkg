@@ -23,7 +23,7 @@ return [
                     "category" => "cc",
                     "name" => "Credit Card",
                     "enabled" => env('JINAH_CHANNEL_CC_ENABLED', true),
-                    "fee" => 0,
+                    "fee" => "2.5% + 2000",
                     "service" => env('JINAH_CHANNEL_CC_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_CC_ICON_URL', "https://c.ekstatic.net/ecl/logos/payment-options/master-visa-logo.svg"),
                 ],

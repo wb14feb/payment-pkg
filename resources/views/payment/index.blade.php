@@ -144,11 +144,11 @@
                             @csrf
                             
                             <!-- Customer Information -->
-                            <div class="step-header">
+                            <div class="step-header" style="display: none;">
                                 <h4>Informasi Pelanggan</h4>
                             </div>
                             
-                            <div class="row">
+                            <div class="row" style="display: none;">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="customer_name" class="form-label">Nama Lengkap</label>
@@ -156,7 +156,7 @@
                                                class="form-control {{ ($errors ?? false) && $errors->has('customer_name') ? 'is-invalid' : '' }}" 
                                                id="customer_name" 
                                                name="customer_name" 
-                                               value="{{ old('customer_name', $customerInfo['name'] ?? '') }}" 
+                                               value="{{ old('customer_name', $customerInfo['name'] ?? 'noname') }}" 
                                                required>
                                         @if(($errors ?? false) && $errors->has('customer_name'))
                                             <div class="invalid-feedback">{{ $errors->first('customer_name') }}</div>
@@ -170,7 +170,7 @@
                                                class="form-control {{ ($errors ?? false) && $errors->has('customer_email') ? 'is-invalid' : '' }}" 
                                                id="customer_email" 
                                                name="customer_email" 
-                                               value="{{ old('customer_email', $customerInfo['email'] ?? '') }}" 
+                                               value="{{ old('customer_email', $customerInfo['email'] ?? 'no@email.com') }}" 
                                                required>
                                         @if(($errors ?? false) && $errors->has('customer_email'))
                                             <div class="invalid-feedback">{{ $errors->first('customer_email') }}</div>
@@ -184,7 +184,7 @@
                                                class="form-control {{ ($errors ?? false) && $errors->has('customer_phone') ? 'is-invalid' : '' }}" 
                                                id="customer_phone" 
                                                name="customer_phone" 
-                                               value="{{ old('customer_phone', $customerInfo['phone'] ?? '') }}" 
+                                               value="{{ old('customer_phone', $customerInfo['phone'] ?? '+6200000000') }}" 
                                                required>
                                         @if(($errors ?? false) && $errors->has('customer_phone'))
                                             <div class="invalid-feedback">{{ $errors->first('customer_phone') }}</div>

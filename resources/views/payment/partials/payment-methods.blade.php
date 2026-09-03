@@ -17,7 +17,7 @@
                                 @elseif($method['fee'] === 0)
                                     (Gratis)
                                 @else
-                                    (Biaya: IDR {{ $method['fee'] }})
+                                    (Biaya: {{ $method['fee'] }})
                                 @endif
                             </small>
                         @endif
