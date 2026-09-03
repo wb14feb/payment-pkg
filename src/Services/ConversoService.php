@@ -21,6 +21,7 @@ class ConversoService implements PaymentServiceContract
     private string $clientSecret;
     private string $clientId;
     private string $apiKey;
+    private string $storeId;
 
     public function __construct(array $config)
     {
@@ -32,6 +33,7 @@ class ConversoService implements PaymentServiceContract
         // $this->clientId = $config['services']['converso']['client_id'];
         // $this->clientSecret = $config['services']['converso']['client_secret'];
         $this->apiKey = $config['services']['converso']['api_key'];
+        $this->storeId = $config['services']['converso']['store_id'];
     }
 
     public function getServiceName(): string
@@ -78,7 +80,7 @@ class ConversoService implements PaymentServiceContract
             'customer_email' => $request->customerEmail,
             'customer_phone' => $phone,
             'description' => $request->description,
-            'fee_type' => 'inclusive',
+            'fee_type' => $sourceOfFunds == 'qris' ? 'inclusive' : 'exclusive',
             'metadata' => [
                 'base_amount' => $amount,
                 'admin_fee' => intval($request->getAdminFeeValue()),
@@ -90,24 +92,14 @@ class ConversoService implements PaymentServiceContract
             $payload['method'] = $this->mapChannelMethod($sourceOfFunds);
         }
 
-        // if (!empty($request->items)) {
-        //     $payload['order'] = [
-        //         ...$payload['order'],
-        //         'itemAmount' => $request->discount || $request->getAdminFeeValue() > 0 ? null : $amount,
-        //         'item' => $request->discount || $request->getAdminFeeValue() > 0 ? null : array_map(function (PaymentItemRequest $item, $index) use ($request) {
-        //             $unitPrice = $item->price;
-        //             return [
-        //                 'name' => $item->name,
-        //                 'quantity' => $item->quantity,
-        //                 'unitPrice' => $unitPrice,
-        //                 'sku' => $item->sku,
-        //                 'brand' => $item->brand,
-        //                 'category' => $item->category,
-        //                 'description' => $item->description,
-        //             ];
-        //         }, $request->items, array_keys($request->items))
-        //     ];
-        // }
+        if ($this->storeId && !empty($this->storeId)) {
+            $payload['store_id'] = $this->storeId;
+        }
+
+        if ($request->getAdminFeeValue() > 0) {
+            $payload['amount'] = $amount + intval($request->getAdminFeeValue());
+        }
+
         return $payload;
     }
 

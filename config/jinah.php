@@ -16,7 +16,7 @@ return [
                     "name" => "QRIS",
                     "enabled" => env('JINAH_CHANNEL_QRIS_ENABLED', true),
                     "fee" => env('JINAH_CHANNEL_QRIS_FEE', env('JINAH_CHANNEL_QR_FEE', 0)),
-                    "service" => env('JINAH_CHANNEL_QRIS_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'finpay')),
+                    "service" => env('JINAH_CHANNEL_QRIS_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_QRIS_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg"),
                 ],
                 "vabca" => [
@@ -24,7 +24,7 @@ return [
                     "name" => "Virtual Account BCA",
                     "enabled" => env('JINAH_CHANNEL_VABCA_ENABLED', true),
                     "fee" => env('JINAH_CHANNEL_VABCA_FEE', env('JINAH_CHANNEL_VA_FEE', 4000)),
-                    "service" => env('JINAH_CHANNEL_VABCA_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'finpay')),
+                    "service" => env('JINAH_CHANNEL_VABCA_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_VABCA_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg"),
                 ],
                 "vabri" => [
@@ -32,7 +32,7 @@ return [
                     "name" => "Virtual Account BRI",
                     "enabled" => env('JINAH_CHANNEL_VABRI_ENABLED', true),
                     "fee" => env('JINAH_CHANNEL_VABRI_FEE', env('JINAH_CHANNEL_VA_FEE', 4000)),
-                    "service" => env('JINAH_CHANNEL_VABRI_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'finpay')),
+                    "service" => env('JINAH_CHANNEL_VABRI_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_VABRI_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg"),
                 ],
                 "vamandiri" => [
@@ -40,7 +40,7 @@ return [
                     "name" => "Virtual Account Mandiri",
                     "enabled" => env('JINAH_CHANNEL_VAMANDIRI_ENABLED', true),
                     "fee" => env('JINAH_CHANNEL_VAMANDIRI_FEE', env('JINAH_CHANNEL_VA_FEE', 4000)),
-                    "service" => env('JINAH_CHANNEL_VAMANDIRI_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'finpay')),
+                    "service" => env('JINAH_CHANNEL_VAMANDIRI_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_VAMANDIRI_ICON_URL', "https://upload.wikimedia.org/wikipedia/id/f/fa/Bank_Mandiri_logo.svg"),
                 ],
                 "vabni" => [
@@ -48,7 +48,7 @@ return [
                     "name" => "Virtual Account BNI",
                     "enabled" => env('JINAH_CHANNEL_VABNI_ENABLED', true),
                     "fee" => env('JINAH_CHANNEL_VABNI_FEE', env('JINAH_CHANNEL_VA_FEE', 4000)),
-                    "service" => env('JINAH_CHANNEL_VABNI_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'finpay')),
+                    "service" => env('JINAH_CHANNEL_VABNI_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_VABNI_ICON_URL', "https://upload.wikimedia.org/wikipedia/commons/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg"),
                 ],
                 "cc" => [
@@ -56,7 +56,7 @@ return [
                     "name" => "Credit Card",
                     "enabled" => env('JINAH_CHANNEL_CC_ENABLED', true),
                     "fee" => 0,
-                    "service" => env('JINAH_CHANNEL_CC_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'finpay')),
+                    "service" => env('JINAH_CHANNEL_CC_SERVICE', env('JINAH_CHANNEL_API_SERVICE', 'converso')),
                     "icon_url" => env('JINAH_CHANNEL_CC_ICON_URL', "https://c.ekstatic.net/ecl/logos/payment-options/master-visa-logo.svg"),
                 ],
                 "other" => [
@@ -147,6 +147,7 @@ return [
         ],
         "converso" => [
             "secret" => env('JINAH_CONVERSO_SECRET_KEY', env('CONVERSO_SECRET_KEY')),
+            "store_id" => env('JINAH_CONVERSO_STORE_ID', env('CONVERSO_STORE_ID')),
         ],
     ],
     

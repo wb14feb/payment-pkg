@@ -324,7 +324,7 @@
     <footer class="text-center py-4 mt-5">
         <div class="container">
             <small class="text-muted">
-                Powered by FINPAY
+                Powered by Converso
             </small>
         </div>
     </footer></body>
