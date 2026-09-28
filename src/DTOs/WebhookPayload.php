@@ -222,7 +222,7 @@ class WebhookPayload
         return new self(
             service: 'converso',
             eventType: $request['event'] ?? 'payment.notification',
-            transactionId: $data['id'],
+            transactionId: $data['id'] ?? null,
             merchantOrderId: $data['external_id'] ?? null,
             status: self::mapConversoStatus($data['status'] ?? null),
             amount: isset($data['amount']) ? (float) $data['amount'] : null,

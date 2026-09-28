@@ -43,7 +43,7 @@ class JinahService implements PaymentServiceContract
     {
         $channelUsed = Cache::get('jinah_channel_type_' . $orderId);
         if (empty($channelUsed)) {
-            $channelUsed['service'] = 'finpay';
+            $channelUsed['service'] = env('JINAH_CHANNEL_API_SERVICE', 'converso');
         }
         $service = app()->makeWith('jinah.service', ['service' => $channelUsed['service']]);
         return $service->check($orderId);
