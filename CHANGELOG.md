@@ -2,6 +2,10 @@
 
 All notable changes to `jinah` will be documented in this file.
 
+## Fix Upon Check Payment - 2026-09-28
+
+**Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.7.8...1.7.9
+
 ## Default to Converso - 2026-09-03
 
 **Full Changelog**: https://github.com/wb14feb/payment-pkg/compare/1.7.2...1.7.3
