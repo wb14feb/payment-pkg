@@ -133,6 +133,25 @@ class ConversoService implements PaymentServiceContract
     {
         $payload = $this->buildPayload($request, $type);
         $response = $this->sendSignedRequest('/partner/v1/payments', $payload);
+        if (!is_array($response)) {
+            $response = [];
+        }
+
+        $hasError = (isset($response['error']) && !empty($response['error'])) || empty($response['id']);
+        if ($hasError) {
+            $errorMsg = is_string($response['error'] ?? null)
+                ? $response['error']
+                : ($response['message'] ?? ($response['error']['message'] ?? 'Payment gateway returned an error'));
+
+            return new PaymentResponse(
+                success: false,
+                transactionId: $response['id'] ?? null,
+                merchantOrderId: $request->orderId,
+                message: $errorMsg,
+                rawResponse: $response,
+            );
+        }
+
         $contentType = null;
         $content = null;
         $externalAdminFee = $response['admin_fee'] ?? null;
@@ -141,19 +160,22 @@ class ConversoService implements PaymentServiceContract
             $content = $response['instructions']['va_number'] ?? null;
         } elseif (str_starts_with($type, 'qr')) {
             $contentType = PaymentResponse::CONTENT_TYPE_QR;
-            $content = $response['instructions']['qr_string'] ?? null;
-            $content = (new QRCode(new QROptions([
-                'outputType' => QROutputInterface::GDIMAGE_PNG,
-            ])))->render($content);
-        }  else if (str_starts_with($type, 'cc')) {
+            $qrString = $response['instructions']['qr_string'] ?? null;
+            $content = $qrString
+                ? (new QRCode(new QROptions([
+                    'outputType' => QROutputInterface::GDIMAGE_PNG,
+                ])))->render($qrString)
+                : null;
+        } else if (str_starts_with($type, 'cc')) {
             $contentType = PaymentResponse::CONTENT_TYPE_CC;
-            $content = $response['instructions']['redirect_url'] ?? null;
+            $content = $response['instructions']['redirect_url'] ?? $response['payment_url'] ?? null;
         }
         return new PaymentResponse(
-            success: isset($response['error']) && !empty($response['error']) ? false : true,
+            success: true,
             transactionId: $response['id'],
             merchantOrderId: $request->orderId,
-            redirectUrl: $response['redirecturl'] ?? $response['redirectUrl'] ?? null,
+            paymentUrl: $response['payment_url'] ?? $response['instructions']['redirect_url'] ?? null,
+            redirectUrl: $response['redirecturl'] ?? $response['redirectUrl'] ?? $response['payment_url'] ?? null,
             expiryTime: isset($response['expires_at']) ? \Carbon\Carbon::parse($response['expires_at']) : null,
             rawResponse: $response,
             contentType: $contentType,
